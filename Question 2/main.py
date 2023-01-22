@@ -1,3 +1,5 @@
+import re
+
 def main(statement:str):
     return is_balanced(statement)
 
@@ -8,6 +10,7 @@ def is_balanced(statement:str) -> bool:
         "(": ")"
     }
     # fast check
+    statement = re.sub(r"[A-Za-z0-9\*\-\+\^\/\=]", "", statement)
     if len(statement) % 2 != 0: return False
     brackets = [bracket for bracket in bracket_pairing.keys()]\
         + [bracket for bracket in bracket_pairing.values()]
