@@ -2,22 +2,33 @@ import argparse
 import random
 from main import is_balanced
 
-def test_is_balanced(iters: int, max_length:int=10):
+def test_is_balanced(iters: int, max_length:int=10, verbose=False, hackerman=False):
     """Tests the is_balanced function over a given number of iterations.
 
     Args:
         iters (int): number of iterations
     """
     results = []
-    for i in range(iters):
+    if hackerman:
+        end = "\r"
+    else:
+        end = "\n"
+    i = 0
+    while True:
         statement, proper = statement_generator(random.randint(1, max_length))
-        print(f"Test {i+1}:\t{statement}:", end=" ")
+        if verbose:
+            print(f"Test {i+1}:\t{statement}:", end=" ")
         res = is_balanced(statement)
+        p = ""
         if res == proper:
-            print(f"Passed ({res})")
+            p = f"Passed ({res})" if verbose else ""
         else:
-            print(f"Failed: {res} (should be {proper})")
+            p = f"Failed: {res} (should be {proper})"
+        print(f"{p:<50}", end=end)
         results.append(res == proper)
+        i += 1
+        if i == iters:
+            break
     print(f"Passed {results.count(True)} out of {iters} tests")
 
 def statement_generator(length: int):
@@ -81,12 +92,14 @@ def statement_generator(length: int):
                 ret += random.choice(brackets)
     return (ret, state)
 
-def main(tests: int=1000, max_length:int=10):
-    test_is_balanced(tests, max_length)
+def main(tests: int=1000, max_length:int=10, verbose=False, hackerman=False):
+    test_is_balanced(tests, max_length, verbose, hackerman)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--tests", type=int, default=1000, help="number of tests to run")
     parser.add_argument("-l", "--length", type=int, default=10, help="maximum length of the statement")
+    parser.add_argument("-v", "--verbose", action="store_true", help="verbose output")
+    parser.add_argument("--hm" "--hackerman", action="store_true", help="hackerman mode", dest="hackerman")
     args = parser.parse_args()
-    main(args.tests, args.length)
+    main(args.tests, args.length, args.verbose, args.hackerman)
