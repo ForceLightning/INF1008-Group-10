@@ -1,9 +1,12 @@
 import random
-import string
 
 
 def random_string(stringLength=10):
-    letters = string.ascii_lowercase + string.ascii_uppercase
+    lowercase = "abcdefghijklmnopqrstuvwxyz"
+    uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    numbers = "0123456789"
+    symbols = "!@#$%^&*()_+-=[]{},./<>?':;"
+    letters = lowercase + uppercase + numbers + symbols
     return ''.join(random.choice(letters) for i in range(stringLength))
 
 
@@ -13,11 +16,11 @@ str2 = str1.lower()
 
 
 def palindrome(str2, s, e):
-    if (s == e):
+    if s == e:
         return True
-    if (str2[s] != str2[e]):
+    if str2[s] != str2[e]:
         return False
-    if (s < e + 1):
+    if s < e + 1:
         return palindrome(str2, s + 1, e - 1)
     return True
 
