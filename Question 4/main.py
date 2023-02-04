@@ -1,9 +1,15 @@
-# user input for string
-str = input("Enter a string: ")
-# remove all punctuations and blank spaces
-str1 = ''.join(i for i in str if i.isalnum())
-# lower uppercase characters
-str2 = str1.lower()
+def main():
+    # user input for string
+    input_str = input("Enter a string: ")
+    # remove all punctuations and blank spaces
+    str1 = ''.join(i for i in input_str if i.isalnum())
+    # lower uppercase characters
+    str2 = str1.lower()
+    # Output
+    if isPalindrome(str2):
+        print("True")
+    else:
+        print("False")
 
 
 def palindrome(str2, s, e):
@@ -17,7 +23,7 @@ def palindrome(str2, s, e):
 
     # for > 2 characters, checking for middle substring
     if (s < e + 1):
-        return palindrome(str2, s + 1, e - 1);
+        return palindrome(str2, s + 1, e - 1)
     return True
 
 
@@ -30,8 +36,6 @@ def isPalindrome(str2):
     return palindrome(str2, 0, n - 1)
 
 
-# Output
-if isPalindrome(str2):
-    print("True")
-else:
-    print("False")
+
+if __name__ == "__main__":
+    main()
