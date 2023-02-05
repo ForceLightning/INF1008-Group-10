@@ -16,7 +16,7 @@ public:
 	QueueADT(int size);
 	~QueueADT();
 
-	void setSize(int size);
+	void setMaxSize(int size);
 	int getSize();
 	int getMaxSize();
 	void push(T data);

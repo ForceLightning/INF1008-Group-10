@@ -21,8 +21,8 @@ StackADT<T>::~StackADT(){
 }
 
 template<class T>
-void StackADT<T>::setSize(int size){
-	queue->setSize(size);
+void StackADT<T>::setMaxSize(int size){
+	queue->setMaxSize(size);
 }
 
 template<class T>
@@ -49,7 +49,12 @@ void StackADT<T>::push(T data){
 	//push the new data to the top
 	if (queue->getSize() > 1) {
 		for (int i = 0; i < queue->getSize()-1; ++i) {
-			T oldData = queue->pop()->data;
+			Node<T> * oldNode = queue->pop();
+			T oldData = oldNode->data;	
+			if(oldNode){
+				delete oldNode;
+				oldNode = NULL;
+			}		
 			queue->push(oldData);
 		}
 	}

@@ -30,22 +30,12 @@ QueueADT<T>::~QueueADT() {
 	head = tail = iter = NULL;
 }
 template <class T>
-void QueueADT<T>::setSize(int size) {
+void QueueADT<T>::setMaxSize(int size) {
 	maxSize = size;
 }
 
 template <class T>
 int QueueADT<T>::getSize() {
-	//int counter = 0;
-	//Node<T>* iter = head;
-	////iterate through the list until the iterator is null, and count up on each element
-	//while (iter != NULL) {
-	//	++counter;
-	//	iter = iter->next;
-	//}
-
-	////return greater than equal to maxSize, shouldnt go over maxSize but just in case
-	//return counter;
 	return currSize;
 }
 
@@ -97,26 +87,16 @@ Node<T>* QueueADT<T>::pop() {
 	return iter;
 }
 
-//empty the entire linked list
+//checks if container is empty
 template <class T>
 bool QueueADT<T>::isEmpty() {
 	//returns if head and tail are both NULL
-	return (head == NULL || tail == NULL);
+	return ((head == NULL || tail == NULL) && currSize == 0);
 }
 
 //returns if the Queuee is full / at capacity
 template <class T>
 bool QueueADT<T>::isFull() {
-	//int counter = 0;
-	//Node<T>* iter = head;
-	////iterate through the list until the iterator is null, and count up on each element
-	//while (iter != NULL) {
-	//	++counter;
-	//	iter = iter->next;
-	//}
-
-	////return greater than equal to maxSize, shouldnt go over maxSize but just in case
-	//return counter >= maxSize;
 	return currSize >= maxSize;
 }
 
