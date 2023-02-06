@@ -18,11 +18,130 @@
 \pagebreak
 \chapter{}
 \section{Problem Statement}
+Implement the queue ADT using a Doubly linked list using any programming language. After the implementation, make use of the standard queue operations to implement the stack ADT. Clearly demonstrate the validity of your implementation through enough test cases. Evaluate the time complexity of the push, pop, empty and full operations.
 \section{Requirements/Specification}
+Users will have access to a container with behaviour akin to a stack, however in the background, the processes are done using a queue and its functions built upon a linked list structure. Users will have access to the standard stack functions - |push|, |pop|, |isEmpty| and |isFull| operations.
 \section{User Guide}
+An executable is provided, users can run the executable directly and follow the on screen prompts, more in-depth details are provided in the Testing section.
 \section{Structure/Design}
+The stack as well as the underlying queue containers both have generic types built into the system. Thus the same code can be re-used to store different types of data, including class objects, should the programmer wish to do that.
+
+There are 3 classes utilised in this program, ``Node'', ``QueueADT'' and ``StackADT''. All 3 classes are template classes using typename |T|.
+\subsection{Node}
+\begin{figure}[H]
+	\caption{Node Class Overview}
+	\centering
+	\label[fig]{fig:qn1_node}
+	\includegraphics[height=0.25\textheight]{qn1_node}
+\end{figure}
+\begin{itemize}
+	\item Data Members
+	\begin{enumerate}
+		\item |T data| -- Used to store the inputted data
+		\item |Node<T>* next| -- Used to store the address of the next node, for use in a linked list
+		\item |Node<T>* prev| -- Used to store the address of the previous node, for use in a linked list
+	\end{enumerate}
+	\item Methods
+	\begin{enumerate}
+		\item |Node()| -- Default constructor
+		\item |~Node()| -- Default destructor
+		\item |Node(T data)| -- An overloaded constructor, takes in a variable to initialise the data on construction.
+	\end{enumerate}
+\end{itemize}
+\begin{figure}[H]
+	\caption{Queue Class Overview}
+	\centering
+	\label[fig]{fig:qn1_queue}
+	\includegraphics[height=0.25\textheight]{qn1_queue}
+\end{figure}
+\subsection{QueueADT}
+\begin{itemize}
+	\item Data Members
+	\begin{enumerate}
+		\item |int maxSize| -- Used to limit the size of the container
+		\item |int currSize| -- Denotes the amount of data stored in the container, will be updated as the data is added and removed from the container
+		\item |Node<T>* head| -- A pointer to the head node of the queue
+		\item |Node<T>* tail| -- A pointer to the tail node of the queue
+	\end{enumerate}
+	\item Methods
+	\begin{enumerate}
+		\item |QueueADT()| -- Default constructor
+		\item |~QueueADT()| -- Default destructor, will iterate through the linked list and delete all nodes when called
+		\item |QueueADT(int size)| -- An overloaded constructor, takes an int argumnet to initialise |maxSize|
+		\item |front()| -- Returns a pointer to the head node of the queue
+		\item |back()| -- Returns a pointer to the tail node of the queue
+		\item |setMaxSize(int size)| -- Passes in an integer to change the container's max alloted size
+		\item |getMaxSize()| -- Returns |maxSize|
+		\item |getSize()| -- Returns |currSize|
+		\item |isEmpty()| -- Returns the truth value of |if currSize| equal to |0| and if |head| or |tail| are |NULL| as an added precaution, has a time complexity of \(\mathcal{O}(1)\) as |currSize| is updated together with the container, the greater than or equal to comparator is used for added precaution
+		\item |push(T data)| -- |data| is passed in, and a |Node| is constructed using its overloaded constructor to be added to the linked list, as well as link the nodes between each other, has a time complexity of \(\mathcal{O}(1)\), as the pointer to the |tail| is stored, new elements can simply be added directly behind |tail| as no comparisons are required. Updates |currSize|, |head|, and |tail| members accordingly
+		\item |pop()| -- Removes the element at the front of the queue, and returns a pointer to it to have its data extracted or deleted accordingly, has a time complexity of \(\mathcal{O}(1)\), as a pointer to |head| is stored, thus the front element can be removed directly with no comparisons. Updates |currSize|, |head|, and |tail| members accordingly
+		\item |printQueue()| -- Prints the entire linked list, has a time complexity of \(\mathcal{O}(n)\) as iteration through the entire list is required
+	\end{enumerate}
+\end{itemize}
+\subsection{StackADT}
+\begin{figure}[H]
+	\caption{Stack Class Overview}
+	\centering
+	\label[fig]{fig:qn1_stack}
+	\includegraphics[height=0.25\textheight]{qn1_stack}
+\end{figure}
+\begin{itemize}
+	\item Data Members
+	\begin{enumerate}
+		\item |QueueADT<T>* queue| -- A pointer to the queue container used to store data
+	\end{enumerate}
+	\item Methods
+	\begin{enumerate}
+		\item |StackADT()| -- Default constructor
+		\item |~StackADT()| -- Default destructor, invokes the queue destructor, and deletes the pointer to the queue
+		\item |StackADT(int size)| -- Overloaded constructor, initialises the |QueueADT| member with a |maxSize| of the value passed in
+		\item |setMaxSize(int size)| -- Invokes the |QueueADT| member's |setMaxSize(int size)|, passing the same value in
+		\item |getMaxSize()| -- Invokes the |QueueADT| member's |getMaxSize()|
+		\item |getSize()| -- Invokes the |QueueADT| member's |getSize()|
+		\item |isEmpty()| -- Invokes the |QueueADT| member's |isEmpty()|, therefore time complexity of \(\mathcal{O}(1)\)
+		\item |isFull()| -- Invokes the |QueueADT| member's |isFull()|, therefore time complexity of \(\mathcal{O}(1)\)
+		\item |push(T data)| -- Invbokes the |QueueADT| member's |push(T data)|, after pushing the initial data in, all the other members in front of it are popped, and re-pushed into the queue to simulate a stack. This causes the function to have a time complexity of \(\mathcal{O}(n)\), as every element in the container has to be reorganised
+		\item |pop()| -- Invokes the |QueueADT| member's |pop()|, therefore time complexity of \(\mathcal{O}(1)\)
+	\end{enumerate}
+\end{itemize}
 \section{Limitations}
+The data type specified on creation is final and is unable to be changed unless the stack is completely re-initialised. A consideration was made to utilise a class holding multiple data types - |int|(4 bytes), |float|(4 bytes), |double|(8 bytes), |char|(1 byte), |std::string|(\(>24\) bytes) - and construct a container with the type of that class. It would allow the container to store any data that has shares the property of being a standard data type. However upon further deliberation, a class with that many types will cause memory bloat, as an example if the majority of the data entered was integers, for every 4 bytes used, \(>37\) bytes are reserved but unused by the system.
 \section{Testing}
+Users will be prompted (option 1 or option 2) to either allow the program to automatically generate test cases, or test the system out themselves. Users can also input a ``\$'' to terminate the progam.
+\begin{figure}[H]
+	\centering
+	\caption{Command-line Interface prompt}
+	\includegraphics[width=0.8\textwidth]{qn1_input}
+	\label{fig:qn1_prompt}
+\end{figure}
+\subsection{Option 1 -- Automatic Generation}
+The program will prompt the user for the type of data they wish to store.
+\begin{figure}[H]
+	\centering
+	\caption{Option 1 prompt}
+	\includegraphics[width=0.8\textwidth]{qn1_option1}
+	\label{fig:qn1_op1}
+\end{figure}
+The program will then generate 10 stacks of random length and random amount of data corresponding to the data type specified by the user.
+
+\begin{figure}[H]
+	\centering
+	\caption{Option 1 testing}
+	\includegraphics[width=0.8\textwidth]{qn1_op1_test}
+	\label{fig:qn1_op1_test}
+\end{figure}
+\subsection{Option 2 -- Manual Testing}
+The program will similarly prompt the user for the type of data they wish to store. Additionally it will enquire on the size they wish for the container to be.
+
+The user will then be able to enter data fitting to the data type into the stack, any data not fitting the data type will be rejected, discarding it and looping back to where the user can continue inputting data. Similarly, if the user tries to add more data into the stack when it is full, the program will also reject the entry. At any time the user can choose to enter ``\$'' and the process will end, and loop back to the start of the program.
+
+\begin{figure}[H]
+	\centering
+	\caption{Option 2 testing with invalid inputs}
+	\includegraphics[width=0.8\textwidth]{qn1_op2}
+	\label{fig:qn1_op2}
+\end{figure}
 \section{Listings}
 \chapter{}
 \section{Problem Statement}
