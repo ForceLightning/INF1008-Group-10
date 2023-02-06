@@ -10,26 +10,29 @@ def test_is_balanced(iters: int, max_length:int=10, verbose=False, hackerman=Fal
     """
     results = []
     if hackerman:
-        end = "\r"
+        end = "\x1b[2k\r"
     else:
         end = "\n"
     i = 0
     while True:
         statement, proper = statement_generator(random.randint(1, max_length))
-        if verbose:
-            print(f"Test {i+1}:\t{statement}:", end=" ")
         res = is_balanced(statement)
         p = ""
+        if verbose or res != proper:
+            tests = f"{end}Test {i+1}"
+            print(f"{tests.ljust(len(str(max_length)) + 9)}:{statement}:", end=" ", flush=True)
         if res == proper:
             p = f"Passed ({res})" if verbose else ""
         else:
             p = f"Failed: {res} (should be {proper})"
-        print(f"{p:<50}", end=end)
+        if len(p) > 0:
+            print(f"{p:<50}", end="")
         results.append(res == proper)
         i += 1
         if i == iters:
             break
-    print(f"Passed {results.count(True)} out of {iters} tests")
+    results = f"{end}Passed {results.count(True)} out of {iters} tests"
+    print(f"{results.ljust(100)}")
 
 def statement_generator(length: int):
     """Generates a random algebraic statement of a given length.
@@ -100,6 +103,6 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--tests", type=int, default=1000, help="number of tests to run")
     parser.add_argument("-l", "--length", type=int, default=10, help="maximum length of the statement")
     parser.add_argument("-v", "--verbose", action="store_true", help="verbose output")
-    parser.add_argument("--hm" "--hackerman", action="store_true", help="hackerman mode", dest="hackerman")
+    parser.add_argument("-H" "--hackerman", action="store_true", help="hackerman mode", dest="hackerman")
     args = parser.parse_args()
     main(args.tests, args.length, args.verbose, args.hackerman)
