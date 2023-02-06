@@ -442,8 +442,24 @@ For the |isPalindrome| function, if it is an empty string, it will be considered
 The operation of removing punctuations and blanks, and converting the string to lowercase is \(\mathcal{O}(n)\), \(n\) being the length of the string. As it iterates through the function |palindrome|, it checks if the first and last characters match, hence the time complexity of this function is \(\mathcal{O}(n)\). The function |isPalindrome| checks if the string is empty, hence the time complexity of the entire algorithm is \(\mathcal{O}(n)\).
 
 \section{Limitations}
-It only works for ASCII characters and  may not be efficient for large strings as it may take a long time to execute. For testing the random generated string, we assume the string length to generate the code, hence the chance for a given string to be a palindrome is determined by how long its length is. True palindromes for randomly generated strings are very hard to get.
+The algorithm assumes an ASCII input, thus input strings with extended UTF-8 encoding may result in erroneous output.
 \section{Testing}
+From the |main.py| file, users are able to manually input a string they would like to check and if the string is a palindrome, it will return True. However when the user inputs invalid inputs such as string that is not a palindrome, it will return False.
+\begin{figure}[H]
+	\centering
+	\caption{Valid and invalid inputs}
+	\includegraphics[width=0.4\textwidth]{qn4_input}
+	\includegraphics[width=0.175\textwidth]{qn4_invalid}
+	\label{fig:qn4_input}
+\end{figure}
+From the |test.py| file, the input strings are generated randomly with 50\% being palindromes. The user can set the arguments |-i| and |-l| to set the number of tests and max generated string length (ASCII letters only) respectively. ASCII symbols are generated in between ASCII letters in order to test the filtering capabilities of the algorithm. An example output of running the testing script is shown in~\autoref{fig:qn4_test}.
+\begin{figure}[H]
+	\centering
+	\caption{Running the testing script}
+	\includegraphics[width=0.8\textwidth]{qn4_test}
+	\label{fig:qn4_test}
+\end{figure}
+
 \section{Listings}
 \chapter{}
 \section{Problem Statement}
