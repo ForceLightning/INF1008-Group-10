@@ -329,10 +329,93 @@ Invalid inputs are a superset of valid inputs, thus the selection of brackets to
 \end{lstlisting}
 \chapter{}
 \section{Problem Statement}
+Write an array-based implementation of the array list ADT that achieves \(\mathcal{O}(1)\) time for insertion and removals at the front and at the end of the array list. Your implementation should also provide for a \(\mathcal{O}(1)\) time |get(i)| method. Assume that overflow does not occur. Explain and justify why your implementation has achieved the stated time complexity requirements.
 \section{Requirements/Specification}
+The program creates an array list with functions to insert and remove items at the front and back of the list as well as a function |get(i)| to get the element in the list at index |i|.
+
+The function |insertItem(int input, int position)| inserts an item into the list. The argument input will be the item and the argument position will decide where the item will be inserted into the list. If the position is 0, the item will be inserted at the front of the list. If the position is 1, the item will be inserted at the end of the list. For example, |insertItem(15, 1)| will insert the item |15| at the end of the list.
+
+The function |removeItem(int position)| removes an item from the list. The argument position will decide whether the item will be removed from the start or from the end of the list. If the position is 0, the item at the start of the list will be removed. If the position is 1, the item at the end of the list will be removed. For example, |removeItem(0)| will remove the item at the start of the list.
 \section{User Guide}
 \section{Structure/Design}
+The program starts by creating an array with a large size (e.g. |int arr[100];|) and variables start (e.g. |int start = 50;|) and end (e.g. |int end = 51;|) to represent the starting and ending index of the list respectively. The list will be initialised somewhere in the middle of the array with the start index and end index next to each other. The list is between the start and end index of the array which will then expand or contract from there depending on where the items are inserted or removed (at the front or at the back of the list).
+\begin{figure}[H]
+	\centering
+	\caption{Initialising the array}
+	\begin{tikzpicture}[MyStyle/.style={draw, minimum width=2em, minimum height=2em, outer sep=0pt}]
+		\matrix (A) [matrix of math nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth]{ \phantom{1} & \cdots & \phantom{1} & \phantom{1} & \phantom{1} & \phantom{1} & \phantom{1} & \phantom{1} & \phantom{1} & \phantom{1} & \phantom{1} & \cdots & \phantom{1} \\};
+		\node[below=of A-1-7] (start) {start};
+		\node[below=of A-1-8] (end) {end};
+		\draw[->] (start.north) to (A-1-7.south);
+		\draw[->] (end.north) to (A-1-8.south);
+	\end{tikzpicture}
+	\label{fig:qn3_init}
+\end{figure}
+To add an item at the start of the list, the start position of the array will first take in the value of the item, then the start index will shift left (i.e. |start--;|). Similarly, to add an item at the end of the list, the end position of the array will take in the value of the item, then the end index will shift right (i.e. |end++;|). Since the function does not need to iterate through the list to insert the items, the time complexity for inserting items is \(\mathcal{O}(1)\).
+
+\begin{figure}[H]
+	\centering
+	\caption{Insertion}
+	\begin{tikzpicture}[MyStyle/.style={draw, minimum width=2em, minimum height=2em, outer sep=0pt}]
+		\matrix (A) [matrix of math nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth]{ \phantom{1} & \cdots & \phantom{1} & \phantom{1} & \phantom{1} & \phantom{1} & 7 & \phantom{1} & \phantom{1} & \phantom{1} & \phantom{1} & \cdots & \phantom{1} \\};
+		\node[below=of A-1-6] (start) {start};
+		\node[below=of A-1-8] (end) {end};
+		\draw[->] (start.north) to (A-1-6.south);
+		\draw[->] (end.north) to (A-1-8.south);
+	\end{tikzpicture}
+	\label{fig:qn3_insert}
+\end{figure}
+Even though the problem statement assumes that overflow does not occur, safety measures were put in place to prevent overflowing. If the start index is at the start of the array (i.e. |start == 0|) or the end index is at the end of the array (i.e. |end == 99|), trying to add another item into the list will print “Overflow!”
+
+To remove an item from the start of the list, the start index will simply shift right (i.e. |start++;|), and to remove an item from the end of the list, the end index will simply shift left (i.e. |end--;|). Since the function only shifts the start or end index when removing items and does not iterate through the list, the time complexity for removing items is \(\mathcal{O}(1)\).
+\begin{figure}[H]
+	\centering
+	\caption{Removal of nodes}
+	\begin{tikzpicture}[MyStyle/.style={draw, minimum width=2em, minimum height=2em, outer sep=0pt}]
+		\matrix (A) [matrix of math nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth]{ \phantom{1} & \cdots & \phantom{1} & \phantom{1} & 3 & 4 & 7 & 12 & 5 & 8 & \phantom{1} & \cdots & \phantom{1} \\};
+		\node[below=of A-1-4] (start) {start};
+		\node[below=of A-1-11] (end) {end};
+		\draw[->] (start.north) to (A-1-4.south);
+		\draw[->] (end.north) to (A-1-11.south);
+		\draw[decorate, decoration={brace, amplitude=10pt, raise=5pt, mirror}](A-1-5.south west) to node[black, midway, below=15pt] {array} (A-1-10.south east);
+		\matrix (B) [matrix of math nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth, below=of A, yshift=-10pt]{ \phantom{1} & \cdots & \phantom{1} & \phantom{1} & 3 & 4 & 7 & 12 & 5 & 8 & \phantom{1} & \cdots & \phantom{1} \\};
+		\node[below=of B-1-4] (start) {start};
+		\node[below=of B-1-10] (end) {end};
+		\draw[->] (start.north) to (B-1-4.south);
+		\draw[->] (end.north) to (B-1-10.south);
+		\draw[decorate, decoration={brace, amplitude=10pt, raise=5pt, mirror}](B-1-5.south west) to node[black, midway, below=15pt] {array} (B-1-9.south east);
+		\draw[->] (A-1-1.south west) to [bend right=45] node[midway, left] {\texttt{\footnotesize removeItem()}} (B-1-1.north west);
+		\matrix (C) [matrix of math nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth, below=of B, yshift=-10pt]{ \phantom{1} & \cdots & \phantom{1} & \phantom{1} & 3 & 4 & 7 & 12 & 5 & 8 & \phantom{1} & \cdots & \phantom{1} \\};
+		\node[below=of C-1-5] (start) {start};
+		\node[below=of C-1-10] (end) {end};
+		\draw[->] (start.north) to (C-1-5.south);
+		\draw[->] (end.north) to (C-1-10.south);
+		\draw[decorate, decoration={brace, amplitude=10pt, raise=5pt, mirror}](C-1-6.south west) to node[black, midway, below=15pt] {array} (C-1-9.south east);
+		\draw[->] (B-1-1.south west) to [bend right=45] node[midway, left] {\texttt{\footnotesize removeItem(1)}} (C-1-1.north west);
+	\end{tikzpicture}
+	\label{fig:qn3_insert}
+\end{figure}
+The list is deemed empty when the start and end index are next to each other. When a function is called to remove another item while the list is empty, it will print ``List is empty!''.
+
+To get the item at index |i| of the list, the function starts counting at the start of the list (i.e. |arr[start + 1]|) and returns the item at index i of the list (i.e. |arr[start + 1 + i]|). Since this function returns the item at the stated index and does not require iteration through the list, the time complexity for this function is \(\mathcal{O}(1)\).
+
+\begin{figure}[H]
+	\centering
+	\caption{List access}
+	\begin{tikzpicture}[MyStyle/.style={draw, minimum width=2em, minimum height=2em, outer sep=0pt}]
+		\matrix (A) [matrix of math nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth]{ \phantom{1} & \cdots & \phantom{1} & \phantom{1} & 3 & 4 & 7 & 12 & 5 & 8 & \phantom{1} & \cdots & \phantom{1} \\};
+		\node[below=of A-1-4] (start) {start};
+		\node[below=of A-1-11] (end) {end};
+		\draw[->] (start.north) to (A-1-4.south);
+		\draw[->] (end.north) to (A-1-11.south);
+		\draw[decorate, decoration={brace, amplitude=10pt, raise=5pt, mirror}](A-1-5.south west) to node[black, midway, below=15pt] {array} (A-1-10.south east);
+		\matrix (B) [matrix of math nodes, nodes={minimum width=2em, minimum height=2em, outer sep=0pt, anchor=center, above of=A, yshift=15pt}, column sep=-\pgflinewidth]{ \phantom{1} & \phantom{\cdots} & \phantom{1} & \phantom{1} & 0 & 1 & 2 & 3 & 4 & 5 & \phantom{1} & \phantom{\cdots} & \phantom{1} \\};
+		\node[left of=B-1-5] {list index:};
+	\end{tikzpicture}
+	\label{fig:qn3_access}
+\end{figure}
 \section{Limitations}
+The limitation of this array list ADT is that it has a maximum size depending on the value used during initialization and has a finite number of items that can be added into the list. The function only stops the list from overflowing but it does not have a solution to overflowing (e.g. increasing the size of the array).
 \section{Testing}
 \section{Listings}
 \chapter{}
