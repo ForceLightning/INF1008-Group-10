@@ -401,7 +401,7 @@ To get the item at index |i| of the list, the function starts counting at the st
 
 \begin{figure}[H]
 	\centering
-	\caption{List access}
+	\caption{List access example (accessing index 4)}
 	\begin{tikzpicture}[MyStyle/.style={draw, minimum width=2em, minimum height=2em, outer sep=0pt}]
 		\matrix (A) [matrix of math nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth]{ \phantom{1} & \cdots & \phantom{1} & \phantom{1} & 3 & 4 & 7 & 12 & 5 & 8 & \phantom{1} & \cdots & \phantom{1} \\};
 		\node[below=of A-1-4] (start) {start};
@@ -411,6 +411,8 @@ To get the item at index |i| of the list, the function starts counting at the st
 		\draw[decorate, decoration={brace, amplitude=10pt, raise=5pt, mirror}](A-1-5.south west) to node[black, midway, below=15pt] {array} (A-1-10.south east);
 		\matrix (B) [matrix of math nodes, nodes={minimum width=2em, minimum height=2em, outer sep=0pt, anchor=center, above of=A, yshift=15pt}, column sep=-\pgflinewidth]{ \phantom{1} & \phantom{\cdots} & \phantom{1} & \phantom{1} & 0 & 1 & 2 & 3 & 4 & 5 & \phantom{1} & \phantom{\cdots} & \phantom{1} \\};
 		\node[left of=B-1-5] {list index:};
+		\node[circle, draw] at (A-1-9) {};
+		\node[circle, draw] at (B-1-9) {};
 	\end{tikzpicture}
 	\label{fig:qn3_access}
 \end{figure}
@@ -423,17 +425,24 @@ The limitation of this array list ADT is that it has a maximum size depending on
 Write a recursive algorithm to check that a sentence is a palindrome (ignoring blanks, lower case and upper case differences, and punctuation marks, so that ``Madam, I'm Adam'' is accepted as a palindrome). Analyse the efficiency of your implementation and provided a detailed discussion of its time complexity.
 \ex{}{Please enter a sentence: Madam, I'm Adam Check if ``Madam, I'm Adam'' is a palindrome: True}
 \section{Requirements/Specification}
-This program is supposed to compare the characters in the sentence. First and last, Second and second last etc. If it matches, it is a palindrome. Some assumptions/conditions would be ignoring blanks, lower case, upper case differences, and punctuation marks. Empty strings will be considered as a palindrome too.
+This program is supposed to compare the characters in the sentence. First and last, Second and second last etc. If it matches, it is a palindrome. Some assumptions/conditions would be ignoring blanks, lower case, upper case differences, and punctuation marks. Some assumptions/conditions would be ignoring blanks, lower case, upper case differences, and punctuation marks. Empty strings will be considered as a palindrome too.
 \section{User Guide}
 \begin{enumerate}
-	\item Click on the ``Run'' button in the IDE to run the program with python. Alternatively, running |python file.py| will run the program.
+	\item Click on the ``Run'' button in the IDE to run the program with python. Alternatively, running |python <filename>.py| will run the program.
 	\item Input a sentence when prompted in the command line interface.
 	\item The resulting output will show whether the input sentence was a palindrome.
 \end{enumerate}
 \section{Structure/Design}
-The design of the system is such that after it recieves an input from the user, it will remove all punctuation and whitespaces in the string, then change all uppercase characters to lowercase characters. The algorithm will then check the first and last characters in the string to see if they match. If they do, the function is recursively called on the manipulated string without the first and last characters. The time complexity of this algorithm is \(\mathcal{O}(n)\).
+The design of the system is that it will remove all punctuations and black spaces in the string then change all uppercase characters to lowercase characters before passing through the |palindrome| function. After the system has recorded the new string, a function for |palindrome| and |isPalindrome| will run to check the string and determine whether it is a palindrome.
+
+For the |palindrome| function, if there is only one character it will return |true|. If the first and last characters do not match, it will return |false|. For more than 2 characters, it will check the middle substring whether the characters match.
+
+For the |isPalindrome| function, if it is an empty string, it will be considered a palindrome and return |true|.
+
+The operation of removing punctuations and blanks, and converting the string to lowercase is \(\mathcal{O}(n)\), \(n\) being the length of the string. As it iterates through the function |palindrome|, it checks if the first and last characters match, hence the time complexity of this function is \(\mathcal{O}(n)\). The function |isPalindrome| checks if the string is empty, hence the time complexity of the entire algorithm is \(\mathcal{O}(n)\).
+
 \section{Limitations}
-The algorithm expects only the ASCII character set as input, and may not work on sentences including UTF-8 characters beyond the ASCII character set.
+It only works for ASCII characters and  may not be efficient for large strings as it may take a long time to execute. For testing the random generated string, we assume the string length to generate the code, hence the chance for a given string to be a palindrome is determined by how long its length is. True palindromes for randomly generated strings are very hard to get.
 \section{Testing}
 \section{Listings}
 \chapter{}
