@@ -463,10 +463,30 @@ From the |test.py| file, the input strings are generated randomly with 50\% bein
 \section{Listings}
 \chapter{}
 \section{Problem Statement}
+\begin{enumerate}[label=(\alph*)]
+	\item Explain the meaning of stability in a sorting algorithm.
+	\item Expalin a situation why stability in sorting is desired.
+	\item State which algorithms are stable. Prove it with an implementation of a stable and an unstable sorting algorithm. Discuss in detail your justification.
+	\begin{enumerate}[label=\roman*.]
+		\item Selection sort
+		\item Insertion sort
+		\item Quick sort
+	\end{enumerate}
+\end{enumerate}
 \section{Requirements/Specification}
+The program implements python code for selection, insertion and quick sort algorithms. In order to clearly demonstrate the stability of each algorithm, the program will accept an unsorted list of 2-element tuples, where the first element is a unique identifier for the tuple and the second element is the value that is compared against other values for the sorting algorithms. Some example inputs are: |[("a", 3), ("b", 3)]|, |[["a", 3], ["b", 3]]|, and |[[123, 3], [456, 3]]|.
 \section{User Guide}
+The program can be run from the command line with |python <filename>.py|. Since the assignment requires a proof by implementation, the input data has been pre-defined in the script. If a user would like to input their own data, they may do so by changing the following variables accordingly.
+\begin{itemize}
+	\item |data_selection| -- for selection sort
+	\item |data_insertion| -- for insertion sort
+	\item |data_quick| -- for quick sort
+\end{itemize}
 \section{Structure/Design}
+The code for all 3 sorting algorithms are contained in functions, so for a user to see the sorting processes, they would have to call each sorting algorithm's respective functions. All 3 sorts will print the elements in the array during each iteration of the sort.
 \section{Limitations}
+As the program uses tuples to demonstrate the stability of the algorithms, the program will not take in any other formats like simple lists as input. For instance, |[26, 54, 56, 32]| and |["a", "b", "c"]| are not valid inputs.
 \section{Testing}
+% TODO: finish copying from google docs
 \section{Listings}
 \end{document}
