@@ -4,13 +4,36 @@
 \input{macros}
 \input{letterfonts}
 
-\title{\Huge{INF1008}\\Data Structures \& Algorithms}
-\author{\huge{Group 10}}
-\date{}
+% \title{\Huge{INF1008}\\Data Structures \& Algorithms\\\Large{Part 1 Assignment}}
+% \author{\huge{Group 10}}
+% \date{}
 
 \begin{document}
 
-\maketitle
+% \maketitle
+\begin{titlepage}
+	\centering
+	\includegraphics[width=0.8\textwidth]{sit-logo-primary}\par\vspace{1cm}
+	{\scshape\Huge{INF1008}\\Data Structures \& Algorithms\\\Large{Part 1 Assignment}\par}
+	\vspace{1cm}
+	{\huge{Group 10}\par}
+	\vspace{0.5cm}
+	\begin{table}[H]
+		\large
+		\centering\begin{tabular}{ll}
+			\toprule
+			Name & Student ID\\
+			\midrule
+			Wong Yok Hung & 2202391\\
+			Christopher Kok & 2203503\\
+			Chong Hou Wei & 2201783\\
+			Vivian Ng & 2203557\\
+			Methinee Ang & 2202781\\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+	\vfill
+\end{titlepage}
 \newpage% or \cleardoublepage
 % \pdfbookmark[<level>]{<title>}{<dest>}
 \pdfbookmark[section]{\contentsname}{toc}
@@ -898,134 +921,150 @@ Testing is handled by the |tests.py| file, which generates \(t\) input strings o
 Invalid inputs are a superset of valid inputs, thus the selection of brackets to insert at any given point is expanded to include all invalid closing brackets as well. The generator then selects a random index \(i\) to insert random brackets until the max length is reached. Then, the generator checks if the number of opening brackets match the number of closing brackets for each type of bracket. If they match, a random index is selected again to either insert or remove a bracket. This ensures that we also deal with the case that the length of the input string is odd. The generator then provides the input string and whether the string is valid to a checker function, which compares the output of the developed algorithm with the validity of the input string. To run the tests, a user may run |python test.py --tests \{number of tests\} --length \{max length of input strings\}|. The output will show how many tests the algorithm passes, and what the generated input strings were for each test.
 \section{Listings}
 \subsection{Algorithm}
-\begin{lstlisting}[language=Python]
-	import re
+\begin{lstlisting}[language=python]
+import re
 
-	def main(statement:str):
-		return is_balanced(statement)
+def main(statement:str):
+    return is_balanced(statement)
 
-	def is_balanced(statement:str) -> bool:
-		bracket_pairing = {
-			"{": "}",
-			"[": "]",
-			"(": ")"
-		}
-		# fast check
-		statement = re.sub(r"[A-Za-z0-9\*\-\+\^\/\=]", "", statement)
-		if len(statement) % 2 != 0: return False
-		brackets = [bracket for bracket in bracket_pairing.keys()]\
-			+ [bracket for bracket in bracket_pairing.values()]
-		stack = [ ]
-		for char in statement:
-			if char in brackets:
-				if char in bracket_pairing.keys():
-					stack.append(char)
-				else:
-					try:
-						if bracket_pairing[stack.pop()] != char:
-							return False
-					except IndexError:
-						return False
-		return len(stack) == 0
+def is_balanced(statement:str) -> bool:
+    bracket_pairing = {
+        "{": "}",
+        "[": "]",
+        "(": ")"
+    }
+    # fast check
+    statement = re.sub(r"[A-Za-z0-9\*\-\+\^\/\=]", "", statement)
+    if len(statement) % 2 != 0: return False
+    brackets = [bracket for bracket in bracket_pairing.keys()]\
+        + [bracket for bracket in bracket_pairing.values()]
+    stack = []
+    for char in statement:
+        if char in brackets:
+            if char in bracket_pairing.keys():
+                stack.append(char)
+            else:
+                try:
+                    if bracket_pairing[stack.pop()] != char:
+                        return False
+                except IndexError:
+                    return False
+    return len(stack) == 0
 
-	if __name__ == "__main__":
-		res = main(input("Enter an algebraic statement: "))
-		print(res)
+if __name__ == "__main__":
+    res = main(input("Enter an algebraic statement: "))
+    print(res)
 \end{lstlisting}
 \subsection{Testing}
-\begin{lstlisting}[language=Python]
-	import argparse
-	import random
-	from main import is_balanced
+\begin{lstlisting}[language=python]
+import argparse
+import random
+from main import is_balanced
 
-	def test_is_balanced(iters: int, max_length:int=10):
-		"""Tests the is_balanced function over a given number of iterations.
+def test_is_balanced(iters: int, max_length:int=10, verbose=False, hackerman=False):
+    """Tests the is_balanced function over a given number of iterations.
 
-		Args:
-			iters (int): number of iterations
-		"""
-		results = []
-		for i in range(iters):
-			statement, proper = statement_generator(random.randint(1, max_length))
-			print(f"Test {i+1}:\t{statement}:", end=" ")
-			res = is_balanced(statement)
-			if res == proper:
-				print(f"Passed ({res})")
-			else:
-				print(f"Failed: {res} (should be {proper})")
-			results.append(res == proper)
-		print(f"Passed {results.count(True)} out of {iters} tests")
+    Args:
+        iters (int): number of iterations
+    """
+    results = []
+    if hackerman:
+        end = "\x1b[2k\r"
+    else:
+        end = "\n"
+    i = 0
+    while True:
+        statement, proper = statement_generator(random.randint(1, max_length))
+        res = is_balanced(statement)
+        p = ""
+        if verbose or res != proper:
+            tests = f"{end}Test {i+1}"
+            print(f"{tests.ljust(len(str(max_length)) + 9)}:{statement}:", end=" ", flush=True)
+        if res == proper:
+            p = f"Passed ({res})" if verbose else ""
+        else:
+            p = f"Failed: {res} (should be {proper})"
+        if len(p) > 0:
+            print(f"{p:<50}", end="")
+        results.append(res == proper)
+        i += 1
+        if i == iters:
+            break
+    results = f"{end}Passed {results.count(True)} out of {iters} tests"
+    print(f"{results.ljust(100)}")
 
-	def statement_generator(length: int):
-		"""Generates a random algebraic statement of a given length.
+def statement_generator(length: int):
+    """Generates a random algebraic statement of a given length.
 
-		Args:
-			length (int): length of the statement
+    Args:
+        length (int): length of the statement
 
-		Returns:
-			str: random algebraic statement
-		"""
-		length //= 2
-		bracket_pairing = {
-			"{": "}",
-			"[": "]",
-			"(": ")"
-		}
-		brackets = [bracket for bracket in bracket_pairing.keys()]\
-			+ [bracket for bracket in bracket_pairing.values()]
-		ret = ""
-		state = random.choice([True, False])
-		ret += random.choice([bracket for bracket in bracket_pairing.keys()])
-		stack = [ret[0]]
-		for _ in range(length):
-			if state:
-				candidates = [b for b in bracket_pairing.keys()]
-				if ret[-1] in bracket_pairing.keys():
-					candidates += [bracket_pairing[ret[-1]]]
-				ret += random.choice(candidates)
-				if ret[-1] in bracket_pairing.values():
-					stack.pop()
-				else:
-					stack.append(ret[-1])
-			else:
-				ret += random.choice(brackets)
-		for _ in range(len(stack)):
-			if state:
-				ret += bracket_pairing[stack.pop()]
-			else:
-				ret += random.choice(brackets)
-		if not state:
-			n_additions = random.randint(0, length)
-			insertion_index = random.randint(0, len(ret))
-			additions = [random.choice(brackets) for _ in range(n_additions)]
-			ret = ret[:insertion_index-1] + "".join(additions) + ret[insertion_index+1:len(ret)+1-n_additions]
-			# count the number of bracket pairs
-			bracket_counts = {(k, v): 0 for k, v in bracket_pairing.items()}
-			for char in ret:
-				for k, v in bracket_pairing.items():
-					if char == k:
-						bracket_counts[(k, v)] += 1
-					elif char == v:
-						bracket_counts[(k, v)] -= 1
-			# if the statement is potentially balanced, either remove or add a random character.
-			if all([count == 0 for count in bracket_counts.values()]):
-				# remove a random character
-				if len(ret) > 2:
-					loc = random.randint(1, len(ret)-1)
-					ret = ret[:loc] + ret[loc+1:]
-				else:
-					ret += random.choice(brackets)
-		return (ret, state)
+    Returns:
+        str: random algebraic statement
+    """
+    length //= 2
+    bracket_pairing = {
+        "{": "}",
+        "[": "]",
+        "(": ")"
+    }
+    brackets = [bracket for bracket in bracket_pairing.keys()]\
+        + [bracket for bracket in bracket_pairing.values()]
+    ret = ""
+    state = random.choice([True, False])
+    ret += random.choice([bracket for bracket in bracket_pairing.keys()])
+    stack = [ret[0]]
+    for _ in range(length):
+        if state:
+            candidates = [b for b in bracket_pairing.keys()]
+            if ret[-1] in bracket_pairing.keys():
+                candidates += [bracket_pairing[ret[-1]]]
+            ret += random.choice(candidates)
+            if ret[-1] in bracket_pairing.values():
+                stack.pop()
+            else:
+                stack.append(ret[-1])
+        else:
+            ret += random.choice(brackets)
+    for _ in range(len(stack)):
+        if state:
+            ret += bracket_pairing[stack.pop()]
+        else:
+            ret += random.choice(brackets)
+    if not state:
+        n_additions = random.randint(0, length)
+        insertion_index = random.randint(0, len(ret))
+        additions = [random.choice(brackets) for _ in range(n_additions)]
+        ret = ret[:insertion_index-1] + "".join(additions) + ret[insertion_index+1:len(ret)+1-n_additions]
+        # count the number of bracket pairs
+        bracket_counts = {(k, v): 0 for k, v in bracket_pairing.items()}
+        for char in ret:
+            for k, v in bracket_pairing.items():
+                if char == k:
+                    bracket_counts[(k, v)] += 1
+                elif char == v:
+                    bracket_counts[(k, v)] -= 1
+        # if the statement is potentially balanced, either remove or add a random character.
+        if all([count == 0 for count in bracket_counts.values()]):
+            # remove a random character
+            if len(ret) > 2:
+                loc = random.randint(1, len(ret)-1)
+                ret = ret[:loc] + ret[loc+1:]
+            else:
+                ret += random.choice(brackets)
+    return (ret, state)
 
-	def main(tests: int=1000, max_length:int=10):
-		test_is_balanced(tests, max_length)
+def main(tests: int=1000, max_length:int=10, verbose=False, hackerman=False):
+    test_is_balanced(tests, max_length, verbose, hackerman)
 
-	if __name__ == "__main__":
-		parser = argparse.ArgumentParser()
-		parser.add_argument("-t", "--tests", type=int, default=1000, help="number of tests to run")
-		parser.add_argument("-l", "--length", type=int, default=10, help="maximum length of the statement")
-		args = parser.parse_args()
-		main(args.tests, args.length)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--tests", type=int, default=1000, help="number of tests to run")
+    parser.add_argument("-l", "--length", type=int, default=10, help="maximum length of the statement")
+    parser.add_argument("-v", "--verbose", action="store_true", help="verbose output")
+    parser.add_argument("-H" "--hackerman", action="store_true", help="hackerman mode", dest="hackerman")
+    args = parser.parse_args()
+    main(args.tests, args.length, args.verbose, args.hackerman)
 \end{lstlisting}
 \chapter{}
 \section{Problem Statement}
@@ -1071,7 +1110,7 @@ Even though the problem statement assumes that overflow does not occur, safety m
 To remove an item from the start of the array, the start index will simply shift right (i.e. |start++;|), and to remove an item from the end of the array, the end index will simply shift left (i.e. |end--;|). Since the function only shifts the start or end index when removing items and does not iterate through the array, the time complexity for removing items is \(\mathcal{O}(1)\).
 \begin{figure}[H]
 	\centering
-	\caption{Removal of nodes}
+	\caption{Removal of elements}
 	\begin{tikzpicture}[MyStyle/.style={draw, minimum width=2em, minimum height=2em, outer sep=0pt}]
 		\matrix (A) [matrix of math nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth]{ \phantom{1} & \cdots & \phantom{1} & \phantom{1} & 3 & 4 & 7 & 12 & 5 & 8 & \phantom{1} & \cdots & \phantom{1} \\};
 		\node[below=of A-1-4] (start) {start};
