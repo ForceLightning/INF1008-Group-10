@@ -15,16 +15,17 @@
 % \pdfbookmark[<level>]{<title>}{<dest>}
 \pdfbookmark[section]{\contentsname}{toc}
 \tableofcontents
+\listoffigures
 \pagebreak
 \chapter{}
 \section{Problem Statement}
-Implement the queue ADT using a Doubly linked list using any programming language. After the implementation, make use of the standard queue operations to implement the stack ADT. Clearly demonstrate the validity of your implementation through enough test cases. Evaluate the time complexity of the push, pop, empty and full operations.
+Implement the queue ADT using a Doubly linked list using any programming language. After the implementation, make use of the standard queue operations to implement the stack ADT\@. Clearly demonstrate the validity of your implementation through enough test cases. Evaluate the time complexity of the push, pop, empty and full operations.
 \section{Requirements/Specification}
 Users will have access to a container with behaviour akin to a stack, however in the background, the processes are done using a queue and its functions built upon a linked list structure. Users will have access to the standard stack functions - |push|, |pop|, |isEmpty| and |isFull| operations.
 \section{User Guide}
-An executable is provided, users can run the executable directly and follow the on screen prompts, more in-depth details are provided in the Testing section.
+An executable is provided, users can run the executable directly and follow the on-screen prompts, more in-depth details are provided in the Testing section.
 \section{Structure/Design}
-The stack as well as the underlying queue containers both have generic types built into the system. Thus the same code can be re-used to store different types of data, including class objects, should the programmer wish to do that.
+The stack as well as the underlying queue containers both have generic types built into the system. Thus, the same code can be re-used to store different types of data, including class objects, should the programmer wish to do that.
 
 There are 3 classes utilised in this program, ``Node'', ``QueueADT'' and ``StackADT''. All 3 classes are template classes using typename |T|.
 \subsection{Node}
@@ -67,13 +68,14 @@ There are 3 classes utilised in this program, ``Node'', ``QueueADT'' and ``Stack
 	\begin{enumerate}
 		\item |QueueADT()| -- Default constructor
 		\item |~QueueADT()| -- Default destructor, will iterate through the linked list and delete all nodes when called
-		\item |QueueADT(int size)| -- An overloaded constructor, takes an int argumnet to initialise |maxSize|
+		\item |QueueADT(int size)| -- An overloaded constructor, takes an int argument to initialise |maxSize|
 		\item |front()| -- Returns a pointer to the head node of the queue
 		\item |back()| -- Returns a pointer to the tail node of the queue
-		\item |setMaxSize(int size)| -- Passes in an integer to change the container's max alloted size
+		\item |setMaxSize(int size)| -- Passes in an integer to change the container's max allotted size
 		\item |getMaxSize()| -- Returns |maxSize|
 		\item |getSize()| -- Returns |currSize|
-		\item |isEmpty()| -- Returns the truth value of |if currSize| equal to |0| and if |head| or |tail| are |NULL| as an added precaution, has a time complexity of \(\mathcal{O}(1)\) as |currSize| is updated together with the container, the greater than or equal to comparator is used for added precaution
+		\item |isEmpty()| -- Returns the truth value of |if currSize| equal to |0| and if |head| or |tail| are |NULL| as an added precaution, has a time complexity of \(\mathcal{O}(1)\) as |currSize| is updated together with the container, with the greater than or equal to comparator being used as an added precaution
+		\item |isFull()| -- Returns the truth value of if |currSize| is greater than or equal to |maxSize|, has a time complexity of \(\mathcal{O}(1)\) as |currSize| is updated together with the container, with the greater than or equal to comparator being used as an added precaution.
 		\item |push(T data)| -- |data| is passed in, and a |Node| is constructed using its overloaded constructor to be added to the linked list, as well as link the nodes between each other, has a time complexity of \(\mathcal{O}(1)\), as the pointer to the |tail| is stored, new elements can simply be added directly behind |tail| as no comparisons are required. Updates |currSize|, |head|, and |tail| members accordingly
 		\item |pop()| -- Removes the element at the front of the queue, and returns a pointer to it to have its data extracted or deleted accordingly, has a time complexity of \(\mathcal{O}(1)\), as a pointer to |head| is stored, thus the front element can be removed directly with no comparisons. Updates |currSize|, |head|, and |tail| members accordingly
 		\item |printQueue()| -- Prints the entire linked list, has a time complexity of \(\mathcal{O}(n)\) as iteration through the entire list is required
@@ -101,14 +103,14 @@ There are 3 classes utilised in this program, ``Node'', ``QueueADT'' and ``Stack
 		\item |getSize()| -- Invokes the |QueueADT| member's |getSize()|
 		\item |isEmpty()| -- Invokes the |QueueADT| member's |isEmpty()|, therefore time complexity of \(\mathcal{O}(1)\)
 		\item |isFull()| -- Invokes the |QueueADT| member's |isFull()|, therefore time complexity of \(\mathcal{O}(1)\)
-		\item |push(T data)| -- Invbokes the |QueueADT| member's |push(T data)|, after pushing the initial data in, all the other members in front of it are popped, and re-pushed into the queue to simulate a stack. This causes the function to have a time complexity of \(\mathcal{O}(n)\), as every element in the container has to be reorganised
+		\item |push(T data)| -- Invokes the |QueueADT| member's |push(T data)|, after pushing the initial data in, all the other members in front of it are popped, and re-pushed into the queue to simulate a stack. This causes the function to have a time complexity of \(\mathcal{O}(n)\), as every element in the container has to be reorganised
 		\item |pop()| -- Invokes the |QueueADT| member's |pop()|, therefore time complexity of \(\mathcal{O}(1)\)
 	\end{enumerate}
 \end{itemize}
 \section{Limitations}
-The data type specified on creation is final and is unable to be changed unless the stack is completely re-initialised. A consideration was made to utilise a class holding multiple data types - |int|(4 bytes), |float|(4 bytes), |double|(8 bytes), |char|(1 byte), |std::string|(\(>24\) bytes) - and construct a container with the type of that class. It would allow the container to store any data that has shares the property of being a standard data type. However upon further deliberation, a class with that many types will cause memory bloat, as an example if the majority of the data entered was integers, for every 4 bytes used, \(>37\) bytes are reserved but unused by the system.
+The data type specified on creation is final and is unable to be changed unless the stack is completely re-initialised. A consideration was made to utilise a class holding multiple data types - |int|(4 bytes), |float|(4 bytes), |double|(8 bytes), |char|(1 byte), |std::string|(\(>24\) bytes) - and construct a container with the type of that class. It would allow the container to store any data that has shares the property of being a standard data type. However, upon further deliberation, a class with that many types will cause memory bloat, as an example if the majority of the data entered was integers, for every 4 bytes used, \(>37\) bytes are reserved but unused by the system.
 \section{Testing}
-Users will be prompted (option 1 or option 2) to either allow the program to automatically generate test cases, or test the system out themselves. Users can also input a ``\$'' to terminate the progam.
+Users will be prompted (option 1 or option 2) to either allow the program to automatically generate test cases, or test the system out themselves. Users can also input a ``\$'' to terminate the program.
 \begin{figure}[H]
 	\centering
 	\caption{Command-line Interface prompt}
@@ -132,7 +134,7 @@ The program will then generate 10 stacks of random length and random amount of d
 	\label{fig:qn1_op1_test}
 \end{figure}
 \subsection{Option 2 -- Manual Testing}
-The program will similarly prompt the user for the type of data they wish to store. Additionally it will enquire on the size they wish for the container to be.
+The program will similarly prompt the user for the type of data they wish to store. Additionally, it will enquire on the size they wish for the container to be.
 
 The user will then be able to enter data fitting to the data type into the stack, any data not fitting the data type will be rejected, discarding it and looping back to where the user can continue inputting data. Similarly, if the user tries to add more data into the stack when it is full, the program will also reject the entry. At any time the user can choose to enter ``\$'' and the process will end, and loop back to the start of the program.
 
@@ -287,7 +289,6 @@ The user will then be able to enter data fitting to the data type into the stack
 
 		return NULL;
 	}
-
 
 \end{lstlisting}
 \subsection{StackADT.cpp}
@@ -1028,16 +1029,16 @@ Invalid inputs are a superset of valid inputs, thus the selection of brackets to
 \end{lstlisting}
 \chapter{}
 \section{Problem Statement}
-Write an array-based implementation of the array list ADT that achieves \(\mathcal{O}(1)\) time for insertion and removals at the front and at the end of the array list. Your implementation should also provide for a \(\mathcal{O}(1)\) time |get(i)| method. Assume that overflow does not occur. Explain and justify why your implementation has achieved the stated time complexity requirements.
+Write an array-based implementation of the array list ADT that achieves \(\mathcal{O}(1)\) time for insertion and removals at the front and at the end of the array list. Your implementation should also provide for an \(\mathcal{O}(1)\) time |get(i)| method. Assume that overflow does not occur. Explain and justify why your implementation has achieved the stated time complexity requirements.
 \section{Requirements/Specification}
-The program creates an array list with functions to insert and remove items at the front and back of the list as well as a function |get(i)| to get the element in the list at index |i|.
+The program creates an array list with functions to insert and remove items at the front and back of the array as well as a function |get(i)| to get the element in the array at index |i|.
 
-The function |insertItem(int input, int position)| inserts an item into the list. The argument input will be the item and the argument position will decide where the item will be inserted into the list. If the position is 0, the item will be inserted at the front of the list. If the position is 1, the item will be inserted at the end of the list. For example, |insertItem(15, 1)| will insert the item |15| at the end of the list.
+The function |insertItem(int input, int position)| inserts an item into the array. The argument input will be the item and the argument position will decide where the item will be inserted into the array. If the position is 0, the item will be inserted at the front of the array. If the position is 1, the item will be inserted at the end of the array. For example, |insertItem(15, 1)| will insert the item |15| at the end of the array.
 
-The function |removeItem(int position)| removes an item from the list. The argument position will decide whether the item will be removed from the start or from the end of the list. If the position is 0, the item at the start of the list will be removed. If the position is 1, the item at the end of the list will be removed. For example, |removeItem(0)| will remove the item at the start of the list.
+The function |removeItem(int position)| removes an item from the array. The argument position will decide whether the item will be removed from the start or from the end of the array. If the position is 0, the item at the start of the array will be removed. If the position is 1, the item at the end of the array will be removed. For example, |removeItem(0)| will remove the item at the start of the array.
 \section{User Guide}
 \section{Structure/Design}
-The program starts by creating an array with a large size (e.g. |int arr[100];|) and variables start (e.g. |int start = 50;|) and end (e.g. |int end = 51;|) to represent the starting and ending index of the list respectively. The list will be initialised somewhere in the middle of the array with the start index and end index next to each other. The list is between the start and end index of the array which will then expand or contract from there depending on where the items are inserted or removed (at the front or at the back of the list).
+The program starts by creating an array with a large size (e.g. |int arr[100];|) and variables start (e.g. |int start = 50;|) and end (e.g. |int end = 51;|) to represent the starting and ending index of the array respectively. The array will be initialised somewhere in the middle of the array with the start index and end index next to each other. The array is between the start and end index of the array which will then expand or contract from there depending on where the items are inserted or removed (at the front or at the back of the array).
 \begin{figure}[H]
 	\centering
 	\caption{Initialising the array}
@@ -1050,7 +1051,7 @@ The program starts by creating an array with a large size (e.g. |int arr[100];|)
 	\end{tikzpicture}
 	\label{fig:qn3_init}
 \end{figure}
-To add an item at the start of the list, the start position of the array will first take in the value of the item, then the start index will shift left (i.e. |start--;|). Similarly, to add an item at the end of the list, the end position of the array will take in the value of the item, then the end index will shift right (i.e. |end++;|). Since the function does not need to iterate through the list to insert the items, the time complexity for inserting items is \(\mathcal{O}(1)\).
+To add an item at the start of the array, the start position of the array will first take in the value of the item, then the start index will shift left (i.e. |start--;|). Similarly, to add an item at the end of the array, the end position of the array will take in the value of the item, then the end index will shift right (i.e. |end++;|). Since the function does not need to iterate through the array to insert the items, the time complexity for inserting items is \(\mathcal{O}(1)\).
 
 \begin{figure}[H]
 	\centering
@@ -1064,9 +1065,9 @@ To add an item at the start of the list, the start position of the array will fi
 	\end{tikzpicture}
 	\label{fig:qn3_insert}
 \end{figure}
-Even though the problem statement assumes that overflow does not occur, safety measures were put in place to prevent overflowing. If the start index is at the start of the array (i.e. |start == 0|) or the end index is at the end of the array (i.e. |end == 99|), trying to add another item into the list will print “Overflow!”
+Even though the problem statement assumes that overflow does not occur, safety measures were put in place to prevent overflowing. If the start index is at the start of the array (i.e. |start == 0|) or the end index is at the end of the array (i.e. |end == 99|), trying to add another item into the array will print “Overflow!”
 
-To remove an item from the start of the list, the start index will simply shift right (i.e. |start++;|), and to remove an item from the end of the list, the end index will simply shift left (i.e. |end--;|). Since the function only shifts the start or end index when removing items and does not iterate through the list, the time complexity for removing items is \(\mathcal{O}(1)\).
+To remove an item from the start of the array, the start index will simply shift right (i.e. |start++;|), and to remove an item from the end of the array, the end index will simply shift left (i.e. |end--;|). Since the function only shifts the start or end index when removing items and does not iterate through the array, the time complexity for removing items is \(\mathcal{O}(1)\).
 \begin{figure}[H]
 	\centering
 	\caption{Removal of nodes}
@@ -1092,11 +1093,11 @@ To remove an item from the start of the list, the start index will simply shift 
 		\draw[decorate, decoration={brace, amplitude=10pt, raise=5pt, mirror}](C-1-6.south west) to node[black, midway, below=15pt] {array} (C-1-9.south east);
 		\draw[->] (B-1-1.south west) to [bend right=45] node[midway, left] {\texttt{\footnotesize removeItem(1)}} (C-1-1.north west);
 	\end{tikzpicture}
-	\label{fig:qn3_insert}
+	\label{fig:qn3_remove}
 \end{figure}
-The list is deemed empty when the start and end index are next to each other. When a function is called to remove another item while the list is empty, it will print ``List is empty!''.
+The array is deemed empty when the start and end index are next to each other. When a function is called to remove another item while the array is empty, it will print ``List is empty!''.
 
-To get the item at index |i| of the list, the function starts counting at the start of the list (i.e. |arr[start + 1]|) and returns the item at index i of the list (i.e. |arr[start + 1 + i]|). Since this function returns the item at the stated index and does not require iteration through the list, the time complexity for this function is \(\mathcal{O}(1)\).
+To get the item at index |i| of the array, the function starts counting at the start of the array (i.e. |arr[start + 1]|) and returns the item at index i of the array (i.e. |arr[start + 1 + i]|). Since this function returns the item at the stated index and does not require iteration through the array, the time complexity for this function is \(\mathcal{O}(1)\).
 
 \begin{figure}[H]
 	\centering
@@ -1116,11 +1117,51 @@ To get the item at index |i| of the list, the function starts counting at the st
 	\label{fig:qn3_access}
 \end{figure}
 \section{Limitations}
-The limitation of this array list ADT is that it has a maximum size depending on the value used during initialization and has a finite number of items that can be added into the list. The function only stops the list from overflowing but it does not have a solution to overflowing (e.g. increasing the size of the array).
-% \section{Testing}
+The limitation of this array list ADT is that it has a maximum size depending on the value used during initialization and has a finite number of items that can be added into the array. The function only stops the list from overflowing, but it does not have a solution to overflowing (e.g.\ increasing the size of the array).
+\section{Testing}
+Testing is handled by the |main()| function in the program. Initially, the array is empty.
+
+First, the program tests the |insertItem()| function by adding elements to the start and end of the array. Adding an item to an invalid position will output |``Invalid Input!''|.
+\begin{figure}[H]
+	\centering
+	\caption{insertItem() testing}
+	\includegraphics[width=0.8\textwidth]{qn3_test1}
+	\label{fig:qn3_insertitem}
+\end{figure}
+
+Next, the program tests the |removeItem()| function by removing an item at the start and at the end of the array. Removing an item at an invalid location will output |``Invalid Input!''|.
+\begin{figure}[H]
+	\centering
+	\caption{removeItem() testing}
+	\includegraphics[width=0.8\textwidth]{qn3_test2}
+	\label{fig:qn3_removeitem}
+\end{figure}
+
+Thirdly, the program tests the |get()| function at index |5|. Using an out of range index will output |``Index Out Of Range!''|.
+\begin{figure}[H]
+	\centering
+	\caption{get() testing}
+	\includegraphics[width=0.8\textwidth]{qn3_test3}
+	\label{fig:qn3_get}
+\end{figure}
+
+Subsequently, the program will attempt to overflow the array at the start and end. The program will then output ``Overflow!'' when items cannot be added to that respective position any more.
+\begin{figure}[H]
+	\centering
+	\caption{Overflow testing}
+	\includegraphics[width=0.8\textwidth]{qn3_test4}
+	\label{fig:qn3_overflow}
+\end{figure}
+
+Lastly, the program will remove every item in the array to empty the array. Then, it will attempt to remove an item from the empty array, which will output |``List is empty!''|. This concludes the testing.
+\begin{figure}[H]
+	\centering
+	\caption{Empty array removeItem() testing}
+	\includegraphics[width=0.8\textwidth]{qn3_test5}
+	\label{fig:qn3_emptyarray}
+\end{figure}
 \section{Listings}
 \begin{lstlisting}[language=C]
-	
 	#include <stdio.h>
 
 	int arr[100];
@@ -1128,17 +1169,23 @@ The limitation of this array list ADT is that it has a maximum size depending on
 	int end = 51;
 
 	int insertItem(int input, int position) {   // position: 0 for inserting at the front; 1 for inserting at the end
-		if (start == 0 || end == 99) {
-			printf("Overflow!\n");
-			return 0;
-		}
 		if (position == 0) {
-			arr[start] = input;
-			start--;
+			if (start == 0) {
+				printf("Overflow!\n");
+			}
+			else {
+				arr[start] = input;
+				start--;
+			}
 		}
 		else if (position == 1) {
-			arr[end] = input;
-			end++;
+			if (end == 99) {
+				printf("Overflow!\n");
+			}
+			else {
+				arr[end] = input;
+				end++;
+			}
 		}
 		else {
 			printf("Invalid Input!\n");
@@ -1167,104 +1214,109 @@ The limitation of this array list ADT is that it has a maximum size depending on
 			
 		}
 		else {
-			printf("Index Out Of Range!\n");
+			printf("Index out of range!\n");
 			return NULL;
 		}
 	}
 
 	int printList() {
-		printf("[")
-		for (int i = 0; i < end - start - 1; i++) {
+		printf("[");
+		for (int i = 0; i < end - start - 2; i++) {
 			printf("%d,", arr[start + 1 + i]);
 		}
-		printf("]\n");
+		if (end - start == 1) {
+			printf("]\n");
+		}
+		else {
+			printf("%d]\n", arr[end - 1]);
+		}
 	}
 
 	int main() {
 		// initial list
-		printf("Initial list: ")
+		printf("Initial list: ");
 		printList();
 
 		// inserting 10 items to the start of the list
 		for (int i = 0; i < 10; i++) {
 			insertItem(i + 10, 0);
 		}
-		printf("After adding 10 items to the start of the list: ")
+		printf("After adding 10 items to the start of the list: ");
 		printList();
 
 		// inserting 10 items to the end of the list
 		for (int i = 0; i < 10; i++) {
 			insertItem(i * 2, 1);
 		}
-		printf("After adding 10 items to the end of the list: ")
+		printf("After adding 10 items to the end of the list: ");
 		printList();
 
 		// inserting the item '13' at the start of the list
 		insertItem(13, 0);
-		printf("After adding the item '13' to the start of the list: ")
+		printf("After adding the item '13' to the start of the list: ");
 		printList();
 
 		// inserting the item '14' at the end of the list
 		insertItem(14, 1);
-		printf("After adding the item '14' to the start of the list: ")
+		printf("After adding the item '14' to the start of the list: ");
 		printList();
 
-		// insertimg the item '15' at an invalid position
-		printf("Adding the item '15' to an invalid position:\n")
+		// inserting the item '15' at an invalid position
+		printf("Adding the item '15' to an invalid position:\n");
 		insertItem(15, 2);
-		printf("Current list: ")
+		printf("Current list: ");
 		printList();
 
 		// removing the item at the start of the list
 		removeItem(0);
-		printf("After removing item at the start of the list: ")
+		printf("After removing item at the start of the list: ");
 		printList();
 
 		// removing the item at the end of the list
 		removeItem(1);
-		printf("After removing item at the end of the list: ")
+		printf("After removing item at the end of the list: ");
 		printList();
 
 		// removing the item at an invalid position
-		printf("Removing item at an invalid position:\n")
+		printf("Removing item at an invalid position:\n");
 		removeItem(2);
-		printf("Current list: ")
+		printf("Current list: ");
 		printList();
 
 		// get the item at index 5 of the list
 		printf("Item at index 5: %d\n", get(5));
 
 		// get the item at index 20 of the list
-		printf("Getting an item with an index that is out of range:\n");
+		printf("Getting an item with an index that is out of range (index 20):\n");
 		printf("Item at index 20: %d\n", get(20));
 
 		// attempting to overflow at the start of the list
-		printf("Attempting to overflow at the start of the list:\n")
+		printf("Attempting to overflow at the start of the list:\n");
 		for (int i = 0; i < 42; i++) {
 			insertItem(1, 0);
 		}
-		printf("Current list: ")
+		printf("Current list: ");
 		printList();
 
 		// attempting to overflow at the end of the list
-		printf("Attempting to overflow at the end of the list:\n")
-		for (int i = 0; i < 42; i++) {
+		printf("Attempting to overflow at the end of the list:\n");
+		for (int i = 0; i < 40; i++) {
 			insertItem(0, 1);
 		}
-		printf("Current list: ")
+		printf("Current list: ");
 		printList();
 
 		// removing all the items in the list
-		for (int i = 0; i < end - start - 1; i++) {
+		for (int i = 0; i < 98; i++) {
 			removeItem(1);
 		}
-		printf("After removing every items in the list: ")
+		printf("After removing every items in the list: ");
 		printList();
 
 		// attempting to remove an item from an empty list
-		printf("removing an item from an empty list:\n")
+		printf("Removing an item from an empty list:\n");
 		removeItem(1);
-		printf("Current list: ")
+		printf("Current list: ");
 		printList();
 }
 \end{lstlisting}
@@ -1292,7 +1344,7 @@ The operation of removing punctuations and blanks, and converting the string to 
 \section{Limitations}
 The algorithm assumes an ASCII input, thus input strings with extended UTF-8 encoding may result in erroneous output.
 \section{Testing}
-From the |main.py| file, users are able to manually input a string they would like to check and if the string is a palindrome, it will return True. However when the user inputs invalid inputs such as string that is not a palindrome, it will return False.
+From the |main.py| file, users are able to manually input a string they would like to check and if the string is a palindrome, it will return True. However, when the user inputs invalid inputs such as string that is not a palindrome, it will return False.
 \begin{figure}[H]
 	\centering
 	\caption{Valid and invalid inputs}
@@ -1417,7 +1469,7 @@ From the |test.py| file, the input strings are generated randomly with 50\% bein
 \section{Problem Statement}
 \begin{enumerate}[label=(\alph*)]
 	\item Explain the meaning of stability in a sorting algorithm.
-	\item Expalin a situation why stability in sorting is desired.
+	\item Explain a situation why stability in sorting is desired.
 	\item State which algorithms are stable. Prove it with an implementation of a stable and an unstable sorting algorithm. Discuss in detail your justification.
 	\begin{enumerate}[label=\roman*.]
 		\item Selection sort
@@ -1473,8 +1525,6 @@ The stability of the algorithm may be demonstrated by showing the unsorted input
 			(array[ind], array[min_index]) = (array[min_index], array[ind])
 			print(array)
 
-
-
 	# Function to do insertion sort (Stable)
 	def insertionSort(arr, stable=True):
 		# Traverse through 1 to len(arr)
@@ -1497,9 +1547,6 @@ The stability of the algorithm may be demonstrated by showing the unsorted input
 				arr[j + 1] = key
 			print(arr)
 		return arr
-
-
-
 
 	# Python program for implementation of Quicksort Sort (Stable)
 	# Function to find the partition position
@@ -1529,7 +1576,6 @@ The stability of the algorithm may be demonstrated by showing the unsorted input
 		# Return the position from where partition is done
 		return i + 1
 
-
 	# function to perform quicksort
 	def quickSort(array, low, high, stable=True):
 		if low < high:
@@ -1544,7 +1590,6 @@ The stability of the algorithm may be demonstrated by showing the unsorted input
 
 			# Recursive call on the right of pivot
 			quickSort(array, pi + 1, high)
-
 
 	data_selection = [("", 4), ("", 5), ("first", 3), ("second", 3)]
 	#print("Unsorted Array: ", data_selection)

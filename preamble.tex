@@ -732,7 +732,42 @@
 {\ --- \small\thecontentspage}
 [ \textbullet\ ][]
 
+\titlecontents{chapter}[3.7pc]
+{\addvspace{30pt}%
+	\begin{tikzpicture}[remember picture, overlay]%
+		\draw[fill=doc!60,draw=doc!60] (-7,-.1) rectangle (-0.3,.5);%
+		\pgftext[left,x=-3.5cm,y=0.2cm]{\color{white}\Large\sc\bfseries Question\ \thecontentslabel};%
+	\end{tikzpicture}\color{doc!60}\large\sc\bfseries}%
+{}
+{}
+{\;\titlerule\;\large\sc\bfseries Page \thecontentspage
+	\begin{tikzpicture}[remember picture, overlay]
+		\draw[fill=doc!60,draw=doc!60] (2pt,0) rectangle (4,0.1pt);
+	\end{tikzpicture}}%
+\titlecontents{figure}[3.7pc]
+{\addvspace{2pt}}
+{\contentslabel[\thecontentslabel]{2pc}}
+{}
+{\hfill\small \thecontentspage}
+[]
+
 \makeatletter
+\def\thischaptertitle{}\def\thischapternumber{}
+\newtoggle{noFigs}
+
+\apptocmd{\@chapter}{\gdef\thischaptertitle{#1}\gdef\thischapternumber{\thechapter}%
+	\global\toggletrue{noFigs}}{}{}
+
+\AtBeginDocument{%
+	\AtBeginEnvironment{figure}{%
+		\iftoggle{noFigs}{
+			\addtocontents{lof}{\protect\contentsline {chapter}%
+				{\protect\numberline {\thischapternumber} {\thischaptertitle}}{}{} }
+			\global\togglefalse{noFigs}
+		}{}
+	}%
+}
+
 \renewcommand{\tableofcontents}{%
 	\chapter*{%
 	  \vspace*{-20\p@}%
@@ -743,6 +778,16 @@
 		  \pgftext[right,x=15cm,y=0.2cm]{\color{white}\Huge\sc\bfseries \contentsname};%
 	  \end{tikzpicture}}%
 	\@starttoc{toc}}
+\renewcommand{\listoffigures}{%
+	\chapter*{%
+	  \vspace*{-20\p@}%
+	  \begin{tikzpicture}[remember picture, overlay]%
+		  \pgftext[right,x=17cm,y=0.2cm]{\color{doc!60}\Huge\sc\bfseries \listfigurename};%
+		  \draw[fill=doc!60,draw=doc!60] (13,-.75) rectangle (20,1);%
+		  \clip (13,-.75) rectangle (20,1);
+		  \pgftext[right,x=17cm,y=0.2cm]{\color{white}\Huge\sc\bfseries \listfigurename};%
+	  \end{tikzpicture}}%
+	\@starttoc{lof}}
 \makeatother
 
 \crefname{lemma}{Lemma}{Lemmas}
