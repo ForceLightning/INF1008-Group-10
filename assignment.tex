@@ -1037,6 +1037,7 @@ The function |insertItem(int input, int position)| inserts an item into the arra
 
 The function |removeItem(int position)| removes an item from the array. The argument position will decide whether the item will be removed from the start or from the end of the array. If the position is 0, the item at the start of the array will be removed. If the position is 1, the item at the end of the array will be removed. For example, |removeItem(0)| will remove the item at the start of the array.
 \section{User Guide}
+To run the program, a user may compile the source code with their C compiler of choice. Then, simply run the executable in a command line or terminal.
 \section{Structure/Design}
 The program starts by creating an array with a large size (e.g. |int arr[100];|) and variables start (e.g. |int start = 50;|) and end (e.g. |int end = 51;|) to represent the starting and ending index of the array respectively. The array will be initialised somewhere in the middle of the array with the start index and end index next to each other. The array is between the start and end index of the array which will then expand or contract from there depending on where the items are inserted or removed (at the front or at the back of the array).
 \begin{figure}[H]
@@ -1084,14 +1085,14 @@ To remove an item from the start of the array, the start index will simply shift
 		\draw[->] (start.north) to (B-1-4.south);
 		\draw[->] (end.north) to (B-1-10.south);
 		\draw[decorate, decoration={brace, amplitude=10pt, raise=5pt, mirror}](B-1-5.south west) to node[black, midway, below=15pt] {array} (B-1-9.south east);
-		\draw[->] (A-1-1.south west) to [bend right=45] node[midway, left] {\texttt{\footnotesize removeItem()}} (B-1-1.north west);
+		\draw[->] (A-1-1.south west) to [bend right=45] node[midway, left] {\texttt{\footnotesize removeItem(1)}} (B-1-1.north west);
 		\matrix (C) [matrix of math nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth, below=of B, yshift=-10pt]{ \phantom{1} & \cdots & \phantom{1} & \phantom{1} & 3 & 4 & 7 & 12 & 5 & 8 & \phantom{1} & \cdots & \phantom{1} \\};
 		\node[below=of C-1-5] (start) {start};
 		\node[below=of C-1-10] (end) {end};
 		\draw[->] (start.north) to (C-1-5.south);
 		\draw[->] (end.north) to (C-1-10.south);
 		\draw[decorate, decoration={brace, amplitude=10pt, raise=5pt, mirror}](C-1-6.south west) to node[black, midway, below=15pt] {array} (C-1-9.south east);
-		\draw[->] (B-1-1.south west) to [bend right=45] node[midway, left] {\texttt{\footnotesize removeItem(1)}} (C-1-1.north west);
+		\draw[->] (B-1-1.south west) to [bend right=45] node[midway, left] {\texttt{\footnotesize removeItem(0)}} (C-1-1.north west);
 	\end{tikzpicture}
 	\label{fig:qn3_remove}
 \end{figure}
