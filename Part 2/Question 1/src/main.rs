@@ -37,37 +37,38 @@ fn quick_select<T: PartialOrd + Clone>(arr: &mut [T], k: usize) -> Option<T> {
      * It is adapted from the quick sort algorithm, but instead of recursing on both
      * sides of the array, it recurses on only one side.
      */
-    if arr.is_empty() {
+    let len = arr.len();
+    if len == 0 || k >= len {
         return None;
     }
-
-    let pivot_index = arr.len() / 2;
+    let pivot_index = len / 2;
     let pivot_value = arr[pivot_index].clone();
 
-    let mut lesser = Vec::new();
-    let mut greater = Vec::new();
-    let mut equal = Vec::new();
-
-    for elem in arr.iter() {
-        if *elem < pivot_value {
-            lesser.push(elem.clone());
-        } else if *elem > pivot_value {
-            greater.push(elem.clone());
+    let mut i = 0;
+    let mut j = 0;
+    let mut n = len - 1;
+    while j <= n {
+        if arr[j] < pivot_value {
+            arr.swap(i, j);
+            i += 1;
+            j += 1;
+        } else if arr[j] > pivot_value {
+            arr.swap(j, n);
+            n -= 1;
         } else {
-            equal.push(elem.clone());
+            j += 1;
         }
     }
-    let len_lesser = lesser.len();
-    let len_equal = equal.len();
 
-    if k < len_lesser {
-        quick_select(&mut lesser, k)
-    } else if k < len_lesser + len_equal {
-        Some(pivot_value)
+    if i <= k && k <= n {
+        Some(arr[k].clone())
+    } else if k < i {
+        quick_select(&mut arr[..i], k)
     } else {
-        quick_select(&mut greater, k - len_lesser - len_equal)
+        quick_select(&mut arr[n + 1..], k - n - 1)
     }
 }
+
 
 fn find_median_values<T: PartialOrd + Clone>(arr: &[T]) -> Option<(T, Option<T>)> {
     /*
@@ -117,6 +118,8 @@ mod tests {
     use super::*;
     use rand::Rng;
     use rand_chacha::{ChaChaRng, rand_core::SeedableRng};
+    use std::io::Write;
+    use std::time::{Duration, Instant};
 
     #[test]
     fn test_quick_select() {
@@ -126,6 +129,7 @@ mod tests {
         let seed: u64 = 42;
         let mut rng = ChaChaRng::seed_from_u64(seed);
         let num_elements = rng.gen_range(0..max_length);
+        // let num_elements = 10;
         let numbers: Vec<usize> = (0..num_elements)
             .map(|_| rng.gen_range(0..max_value))
             .collect();
@@ -137,6 +141,7 @@ mod tests {
         } else {
             Option::Some((numbers_clone[num_elements / 2], None))
         };
+        dbg!(&numbers_clone[num_elements / 2 - 1..=num_elements / 2+1]);
         let res = find_median_values(&numbers);
         match(&median, &res) {
             (Some((median, Some(median2))), Some((res, Some(res2)))) => {
@@ -152,6 +157,20 @@ mod tests {
         }
     }
     
+    #[test]
+    fn quick_select_worst_case() {
+        let mut arr = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        let res = quick_select(&mut arr, 0);
+        assert_eq!(res, Some(1));
+        let res = quick_select(&mut arr, 1);
+        assert_eq!(res, Some(2));
+        let res = quick_select(&mut arr, 2);
+        assert_eq!(res, Some(3));
+        let res = quick_select(&mut arr, 3);
+        assert_eq!(res, Some(4));
+
+    }
+
     fn generate_phone_numbers(num_numbers: usize, phone_num_length: usize, seed: u64) -> Vec<String> {
         let mut rng = ChaChaRng::seed_from_u64(seed);
         let phone_numbers: Vec<String> = (0..num_numbers)
@@ -172,6 +191,7 @@ mod tests {
         // create a vector of random phone numbers with a max length, max value and seed.
         let mut rng = ChaChaRng::seed_from_u64(seed);
         let num_elements = rng.gen_range(0..max_length);
+        // let num_elements = 5;
         let phone_numbers: Vec<String> = generate_phone_numbers(num_elements, 10, seed);
         // find the median of a clone of the vector
         let mut phone_numbers_clone = phone_numbers.clone();
@@ -185,6 +205,7 @@ mod tests {
         } else {
             Some((phone_numbers_clone[num_elements / 2].clone(), None))
         };
+        dbg!(&phone_numbers_clone[num_elements / 2 - 1..=num_elements / 2+1]);
         let res = find_median_values(&phone_numbers);
         match(&median, &res) {
             (Some((median, Some(median2))), Some((res, Some(res2)))) => {
@@ -198,5 +219,73 @@ mod tests {
                 panic!("median and res are not the same");
             }
         }
+    }
+
+    fn quicksort<T: PartialOrd>(arr: &mut [T]) {
+        if arr.len() < 1 {
+            return;
+        }
+        let pivot = partition(arr);
+        quicksort(&mut arr[..pivot]);
+        quicksort(&mut arr[pivot + 1..]);
+    }
+
+    fn partition<T: PartialOrd>(arr: &mut [T]) -> usize {
+        let len = arr.len();
+        let pivot_index = len / 2;
+        arr.swap(pivot_index, len - 1);
+        let mut store_index = 0;
+        for i in 0..len - 1 {
+            if arr[i] < arr[len - 1] {
+                arr.swap(i, store_index);
+                store_index += 1;
+            }
+        }
+        arr.swap(store_index, len - 1);
+        store_index
+    }
+
+    #[test]
+    fn compare_quickselect_and_quicksort() {
+        let max_length: usize = 10000;
+        let seed: u64 = 42;
+        // create a csv file to store the results
+        let mut file = match std::fs::File::create("results.csv") {
+            Ok(file) => file,
+            Err(err) => panic!("couldn't create file: {}", err),
+        };
+        
+        println!("{0: <10} | {1: <10} | {2: <10} | {3: <10}", "length", "quicksort", "quickselect", "ratio");
+        let phone_numbers: Vec<String> = generate_phone_numbers(max_length, 10, seed);
+        for num_elements in 1..=max_length {
+            let mut phone_numbers_clone = phone_numbers[..num_elements].to_vec();
+            let mut sum_quicksort_time: Duration = Duration::new(0, 0);
+            let mut sum_quickselect_time: Duration = Duration::new(0, 0);
+            for i in 0..5 {
+                let start = Instant::now();
+                let _ = quicksort(&mut phone_numbers_clone);
+                let end = Instant::now();
+                if i == 0 {
+                    sum_quicksort_time = end - start;
+                } else {
+                    sum_quicksort_time += end - start;
+                }
+                let start = Instant::now();
+                let _ = find_median_values(&phone_numbers[..num_elements]);
+                let end = Instant::now();
+                if i == 0 {
+                    sum_quickselect_time = end - start;
+                } else {
+                    sum_quickselect_time += end - start;
+                }
+            }
+            let avg_quicksort_time = sum_quicksort_time / 5;
+            let avg_quickselect_time = sum_quickselect_time / 5;
+            let ratio = avg_quicksort_time.as_nanos() as f64 / avg_quickselect_time.as_nanos() as f64;
+            // println!("num_elements: {}, quicksort: {:?}, quickselect: {:?}", num_elements, avg_quicksort_time, avg_quickselect_time);
+            println!("{0: <10} | {1: <10} | {2: <10} | {3: <10} ", num_elements, avg_quicksort_time.as_nanos(), avg_quickselect_time.as_nanos(), ratio);
+            writeln!(file, "{}, {}, {}, {}", num_elements, avg_quicksort_time.as_nanos(), avg_quickselect_time.as_nanos(), ratio).expect("couldn't write to file");
+        }
+
     }
 }
