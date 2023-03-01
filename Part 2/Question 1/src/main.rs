@@ -1,5 +1,14 @@
 use std::env;
 
+/// This function takes a list of phone numbers as command line arguments,
+/// cleans them up, and finds the median value(s).
+/// It uses quick select to find the median value(s).
+/// It has an average time complexity of O(n), but worst case is O(n^2).
+/// # Examples
+/// ```
+/// cargo run "123-456-7890" "(323) 456-7890" "+1 223-456-7890" "1-322-345-7890" "322 555 0000"
+/// > 3223457890
+/// ```
 fn main() {
     let args: Vec<String>  = env::args().collect();
     let phone_numbers: Vec<String> = args[1..]
@@ -30,6 +39,24 @@ fn main() {
     }
 }
 
+/// This function uses quick select to find the kth smallest element in an array,
+/// indexed from 0.
+/// In this case we are using it to find the median value.
+/// It is adapted from the quick sort algorithm, but instead of recursing on both
+/// sides of the array, it recurses on only one side.
+/// It has an average time complexity of O(n), but worst case is O(n^2).
+/// # Arguments
+/// * `arr` - A mutable slice of type T
+/// * `k` - The index of the element to find
+/// # Returns
+/// * `Option<T>` - The kth smallest element in the array
+/// # Examples 
+/// ```
+/// let mut arr = [1, 2, 3, 4, 5];
+/// let k = 2;
+/// let res = quick_select(&mut arr, k);
+/// assert_eq!(res, Some(3));
+/// ```
 fn quick_select<T: PartialOrd + Clone>(arr: &mut [T], k: usize) -> Option<T> {
     /*
      * This function uses quick select to find the kth smallest element in an array.
@@ -69,7 +96,21 @@ fn quick_select<T: PartialOrd + Clone>(arr: &mut [T], k: usize) -> Option<T> {
     }
 }
 
-
+/// This function finds the median value(s) of an array.
+/// If the array has an even number of elements, it returns the two middle values.
+/// If the array has an odd number of elements, it returns the middle value.
+/// It uses quick select to find the median value(s).
+/// It has an average time complexity of O(n), but worst case is O(n^2).
+/// # Arguments
+/// * `arr` - A slice of type T
+/// # Returns
+/// * `Option<(T, Option<T>)>` - A tuple of the median value(s)
+/// # Examples
+/// ```
+/// let arr = [1, 2, 3, 4, 5];
+/// let res = find_median_values(&arr);
+/// assert_eq!(res, Some(3, None));
+/// ```
 fn find_median_values<T: PartialOrd + Clone>(arr: &[T]) -> Option<(T, Option<T>)> {
     /*
      * This function finds the median value(s) of an array.
@@ -121,11 +162,21 @@ mod tests {
     use std::io::Write;
     use std::time::{Duration, Instant};
 
+    /// This function is used to test quick select by comparing it to the sort function
+    /// on a vector of random numbers.
+    /// It creates a vector of random numbers, then sorts the vector and finds the median value,
+    /// then asserts that the quick select algorithm also finds the median value.
     #[test]
     fn test_quick_select() {
+        /* 
+         * This test checks that the quick select algorithm works to find the median
+         * value for an array of numbers. It uses a random number generator to create
+         * a vector of random numbers, then sorts the vector and finds the median value,
+         * then asserts that the quick select algorithm also finds the median value.
+         */
         // create a vector of random numbers with a max length, max value and seed.
-        let max_length: usize = 100;
-        let max_value: usize = 100;
+        let max_length: usize = 100; // max possible length of the vector
+        let max_value: usize = 100; // max possible value of the random numbers
         let seed: u64 = 42;
         let mut rng = ChaChaRng::seed_from_u64(seed);
         let num_elements = rng.gen_range(0..max_length);
@@ -137,13 +188,16 @@ mod tests {
         let mut numbers_clone = numbers.clone();
         numbers_clone.sort();
         let median = if num_elements % 2 == 0 {
+            // if the length of the array is even, return the two middle values
             Option::Some((numbers_clone[num_elements / 2 - 1], Some(numbers_clone[num_elements / 2])))
         } else {
+            // otherwise, return the middle value
             Option::Some((numbers_clone[num_elements / 2], None))
         };
         dbg!(&numbers_clone[num_elements / 2 - 1..=num_elements / 2+1]);
         let res = find_median_values(&numbers);
         match(&median, &res) {
+            // match the median and the result of the quick select algorithm
             (Some((median, Some(median2))), Some((res, Some(res2)))) => {
                 assert_eq!(median, res);
                 assert_eq!(median2, res2);
@@ -157,8 +211,16 @@ mod tests {
         }
     }
     
+    /// This function tests the worst case scenario for the quick select algorithm.
+    /// It creates a vector of numbers from 1 to 10, then calls quick select on the
+    /// vector to find the 0th, 1st, 2nd, 3rd, and 4th element.
+    /// It asserts that the quick select algorithm returns the correct values.
     #[test]
     fn quick_select_worst_case() {
+        /*
+         *  This test quickly checks some manual inputs to make sure the quick select
+         *  algorithm works in the worst case scenario.
+         */
         let mut arr = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         let res = quick_select(&mut arr, 0);
         assert_eq!(res, Some(1));
@@ -171,6 +233,18 @@ mod tests {
 
     }
 
+    /// This function generates a vector of random phone numbers.
+    /// It takes the number of phone numbers to generate, the length of each phone number
+    /// # Arguments
+    /// * `num_numbers` - The number of phone numbers to generate
+    /// * `phone_num_length` - The length of each phone number
+    /// * `seed` - The seed for the random number generator
+    /// # Returns
+    /// * `phone_numbers` - A vector of phone numbers as strings
+    /// # Example
+    /// ```
+    /// let phone_numbers = generate_phone_numbers(10, 10, 42);
+    /// ```
     fn generate_phone_numbers(num_numbers: usize, phone_num_length: usize, seed: u64) -> Vec<String> {
         let mut rng = ChaChaRng::seed_from_u64(seed);
         let phone_numbers: Vec<String> = (0..num_numbers)
@@ -184,6 +258,10 @@ mod tests {
         phone_numbers
     }
 
+    /// This test is used to test quick select by comparing it to the sort function
+    /// on a vector of random phone numbers.
+    /// It creates a vector of random phone numbers, then sorts the vector and finds the median value,
+    /// then asserts that the quick select algorithm also finds the median value.
     #[test]
     fn test_quick_select_phone_numbers() {
         let max_length: usize = 100;
@@ -221,6 +299,10 @@ mod tests {
         }
     }
 
+    /// This function is for testing the performance of the quick sort algorithm
+    /// to the quick select algorithm.
+    /// # Arguments
+    /// * `arr` - A vector of T that is to be sorted    
     fn quicksort<T: PartialOrd>(arr: &mut [T]) {
         if arr.len() < 1 {
             return;
@@ -230,6 +312,16 @@ mod tests {
         quicksort(&mut arr[pivot + 1..]);
     }
 
+    /// This function is used by the quick sort algorithm to partition the vector.
+    /// # Arguments
+    /// * `arr` - A vector of T that is to be sorted
+    /// # Returns
+    /// * `usize` - The index of the pivot element
+    /// # Example
+    /// ```
+    /// let mut arr = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    /// let pivot = partition(&mut arr);
+    /// ```
     fn partition<T: PartialOrd>(arr: &mut [T]) -> usize {
         let len = arr.len();
         let pivot_index = len / 2;
@@ -245,6 +337,13 @@ mod tests {
         store_index
     }
 
+    /// This test is used to compare the performance of the quick select algorithm
+    /// to the quick sort algorithm.
+    /// It creates a vector of random phone numbers, then sorts the vector and finds the median value,
+    /// then asserts that the quick select algorithm also finds the median value.
+    /// It then compares the time taken to find the median value using the quick select algorithm
+    /// to the time taken to sort the vector and find the median value.
+    /// It then prints the results to a csv file.
     #[test]
     fn compare_quickselect_and_quicksort() {
         let max_length: usize = 10000;
