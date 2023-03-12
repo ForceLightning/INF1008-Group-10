@@ -161,6 +161,9 @@ mod tests {
     use rand_chacha::{ChaChaRng, rand_core::SeedableRng};
     use std::io::Write;
     use std::time::{Duration, Instant};
+    use rayon::prelude::*;
+    use rayon::iter::ParallelIterator;
+    use indicatif::{ParallelProgressIterator, ProgressStyle};
 
     /// This function is used to test quick select by comparing it to the sort function
     /// on a vector of random numbers.
@@ -324,7 +327,10 @@ mod tests {
     /// ```
     fn partition<T: PartialOrd>(arr: &mut [T]) -> usize {
         let len = arr.len();
-        let pivot_index = len / 2;
+        // let pivot_index = len / 2;
+        // select a random pivot index
+        let mut rng = rand::thread_rng();
+        let pivot_index = rng.gen_range(0..len);
         arr.swap(pivot_index, len - 1);
         let mut store_index = 0;
         for i in 0..len - 1 {
@@ -337,6 +343,99 @@ mod tests {
         store_index
     }
 
+    enum ComparisonType {
+        PhoneNumbers,
+        Integers
+    }
+
+    // This function is used to compare the performance of quick select and quick sort
+    // on a vector of either phone numbers or integers of an array up to a certain length.
+    // It takes a comparison type, the maximum length of the array and a seed for the random number generator.
+    // It returns a vector of tuples containing the length of the array, the time taken to sort the array
+    // # Arguments
+    // * `comparison` - The type of comparison to be made
+    // * `max_length` - The maximum length of the array
+    // * `seed` - The seed for the random number generator
+    // # Returns
+    // * `Vec<(usize, Duration, Duration)>` - A vector of tuples containing the length of the array, the time taken to sort the array
+    // using quick sort and the time taken to find the median value using quick select.
+    // # Example
+    // ```
+    // let comparison = ComparisonType::PhoneNumbers;
+    // let max_length = 100;
+    // let seed = 42;
+    // let results = _compare_quickselect_and_quicksort(comparison, max_length, seed);
+    // ```
+    fn _compare_quickselect_and_quicksort(comparison: ComparisonType, max_length: usize, seed: u64) -> Vec<(usize, Duration, Duration)> {
+        // let max_length: usize = 100000;
+        // let seed: u64 = 42;
+        let style = ProgressStyle::with_template("{spinner:.green} [{elapsed_precise}/{eta_precise}] [{bar:40.cyan/blue}] {pos:>7}/{len:7} {msg}")
+            .unwrap()
+            .progress_chars("##-");
+        let results = match comparison {
+            ComparisonType::PhoneNumbers => {
+                let phone_numbers = generate_phone_numbers(max_length, 10, seed);
+                let res: Vec<(usize, Duration, Duration)> = (1..=max_length)
+                    .into_par_iter()
+                    .progress_count(max_length as u64)
+                    .with_style(style)
+                    .map(|num_elements| {
+                        let phone_numbers_slice = &phone_numbers[..(max_length - num_elements)];
+                        let timings = compare_quickselect_and_quicksort(phone_numbers_slice);
+                        ((max_length - num_elements + 1), timings.0, timings.1)
+                    }).collect();
+                res.into_iter().rev().collect()
+            },
+            ComparisonType::Integers => {
+                let mut rng = ChaChaRng::seed_from_u64(seed);
+                let arr: Vec<i32> = (0..max_length).map(|_| rng.gen_range(0..1000000)).collect();
+                let res: Vec<(usize, Duration, Duration)> = (1..=max_length)
+                    .into_par_iter()
+                    .progress_count(max_length as u64)
+                    .with_style(style)
+                    .map(|num_elements| {
+                        let arr_slice = &arr[..(max_length - num_elements)];
+                        let timings = compare_quickselect_and_quicksort(arr_slice);
+                        ((max_length - num_elements + 1), timings.0, timings.1)
+                    })
+                    .collect();
+                res.into_iter().rev().collect()
+            }
+        };
+        results
+    }
+
+    // This function is for testing the performance of the quick sort algorithm
+    // to the quick select algorithm.
+    // # Arguments
+    // * `arr` - A vector of T that is to be sorted
+    // # Returns
+    // * `(Duration, Duration)` - The average time it takes to sort the vector using quicksort and quickselect
+    // # Example
+    // ```
+    // let mut arr = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    // let timings = compare_quickselect_and_quicksort(&arr);
+    // ```
+    fn compare_quickselect_and_quicksort<T: PartialOrd + Clone>(arr: &[T]) -> (Duration, Duration) {
+        let mut arr_clone = arr.to_vec();
+        let mut sum_quicksort_time = Duration::new(0, 0);
+        let mut sum_quickselect_time = Duration::new(0, 0);
+        for _ in 0..5 {
+            let start = Instant::now();
+            quicksort(&mut arr_clone);
+            let end = Instant::now();
+            sum_quicksort_time += end - start;
+            let start = Instant::now();
+            find_median_values(&arr);
+            let end = Instant::now();
+            sum_quickselect_time += end - start;
+        }
+        let avg_quicksort_time = sum_quicksort_time / 5;
+        let avg_quickselect_time = sum_quickselect_time / 5;
+        (avg_quicksort_time, avg_quickselect_time)
+    }
+
+
     /// This test is used to compare the performance of the quick select algorithm
     /// to the quick sort algorithm.
     /// It creates a vector of random phone numbers, then sorts the vector and finds the median value,
@@ -345,46 +444,43 @@ mod tests {
     /// to the time taken to sort the vector and find the median value.
     /// It then prints the results to a csv file.
     #[test]
-    fn compare_quickselect_and_quicksort() {
+    fn compare_quickselect_and_quicksort_phonenumbers() {
         let max_length: usize = 10000;
         let seed: u64 = 42;
         // create a csv file to store the results
-        let mut file = match std::fs::File::create("results.csv") {
+        let mut file = match std::fs::File::create("results_phone.csv") {
             Ok(file) => file,
             Err(err) => panic!("couldn't create file: {}", err),
         };
         
         println!("{0: <10} | {1: <10} | {2: <10} | {3: <10}", "length", "quicksort", "quickselect", "ratio");
-        let phone_numbers: Vec<String> = generate_phone_numbers(max_length, 10, seed);
-        for num_elements in 1..=max_length {
-            let mut phone_numbers_clone = phone_numbers[..num_elements].to_vec();
-            let mut sum_quicksort_time: Duration = Duration::new(0, 0);
-            let mut sum_quickselect_time: Duration = Duration::new(0, 0);
-            for i in 0..5 {
-                let start = Instant::now();
-                let _ = quicksort(&mut phone_numbers_clone);
-                let end = Instant::now();
-                if i == 0 {
-                    sum_quicksort_time = end - start;
-                } else {
-                    sum_quicksort_time += end - start;
-                }
-                let start = Instant::now();
-                let _ = find_median_values(&phone_numbers[..num_elements]);
-                let end = Instant::now();
-                if i == 0 {
-                    sum_quickselect_time = end - start;
-                } else {
-                    sum_quickselect_time += end - start;
-                }
-            }
-            let avg_quicksort_time = sum_quicksort_time / 5;
-            let avg_quickselect_time = sum_quickselect_time / 5;
-            let ratio = avg_quicksort_time.as_nanos() as f64 / avg_quickselect_time.as_nanos() as f64;
-            // println!("num_elements: {}, quicksort: {:?}, quickselect: {:?}", num_elements, avg_quicksort_time, avg_quickselect_time);
-            println!("{0: <10} | {1: <10} | {2: <10} | {3: <10} ", num_elements, avg_quicksort_time.as_nanos(), avg_quickselect_time.as_nanos(), ratio);
-            writeln!(file, "{}, {}, {}, {}", num_elements, avg_quicksort_time.as_nanos(), avg_quickselect_time.as_nanos(), ratio).expect("couldn't write to file");
-        }
+        let results = _compare_quickselect_and_quicksort(ComparisonType::PhoneNumbers, max_length, seed);
+        results.iter().for_each(|(length, quicksort_time, quickselect_time)| {
+            let ratio = quicksort_time.as_nanos() as f64 / quickselect_time.as_nanos() as f64;
+            let _ = writeln!(file, "{0}, {1}, {2}, {3}", length, quicksort_time.as_nanos(), quickselect_time.as_nanos(), ratio);
+        });
+    }
 
+    // This test is used to compare the performance of the quick select algorithm
+    // to the quick sort algorithm.
+    // It creates a vector of random integers, then sorts the vector and finds the median value,
+    // then asserts that the quick select algorithm also finds the median value.
+    // It then compares the time taken to find the median value using the quick select algorithm
+    // to the time taken to sort the vector and find the median value.
+    // It then prints the results to a csv file.
+    #[test]
+    fn compare_quickselect_and_quicksort_integers() {
+        let max_length: usize = 10000;
+        let seed: u64 = 42;
+        // create a csv file to store the results
+        let mut file = match std::fs::File::create("results_int.csv") {
+            Ok(file) => file,
+            Err(err) => panic!("couldn't create file: {}", err),
+        };
+        let results = _compare_quickselect_and_quicksort(ComparisonType::Integers, max_length, seed);
+        results.iter().for_each(|(length, quicksort_time, quickselect_time)| {
+            let ratio = quicksort_time.as_nanos() as f64 / quickselect_time.as_nanos() as f64;
+            let _ = writeln!(file, "{0}, {1}, {2}, {3}", length, quicksort_time.as_nanos(), quickselect_time.as_nanos(), ratio);
+        });
     }
 }
