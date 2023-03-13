@@ -445,7 +445,7 @@ mod tests {
     /// It then prints the results to a csv file.
     #[test]
     fn compare_quickselect_and_quicksort_phonenumbers() {
-        let max_length: usize = 10000;
+        let max_length: usize = 100000;
         let seed: u64 = 42;
         // create a csv file to store the results
         let mut file = match std::fs::File::create("results_phone.csv") {
@@ -470,7 +470,7 @@ mod tests {
     // It then prints the results to a csv file.
     #[test]
     fn compare_quickselect_and_quicksort_integers() {
-        let max_length: usize = 10000;
+        let max_length: usize = 100000;
         let seed: u64 = 42;
         // create a csv file to store the results
         let mut file = match std::fs::File::create("results_int.csv") {
