@@ -30,7 +30,6 @@ def find_nearest_numbers(file_name, target_number, k):
             differences[difference] = [number]
         else:
             differences[difference].append(number)
-
     # sort the unique differences in ascending order
     sorted_differences = sorted(differences.keys())
     print(differences)
