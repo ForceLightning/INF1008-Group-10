@@ -180,36 +180,40 @@ mod tests {
         // create a vector of random numbers with a max length, max value and seed.
         let max_length: usize = 100; // max possible length of the vector
         let max_value: usize = 100; // max possible value of the random numbers
-        let seed: u64 = 42;
-        let mut rng = ChaChaRng::seed_from_u64(seed);
-        let num_elements = rng.gen_range(0..max_length);
-        // let num_elements = 10;
-        let numbers: Vec<usize> = (0..num_elements)
-            .map(|_| rng.gen_range(0..max_value))
-            .collect();
-        // find the median of a clone of the vector
-        let mut numbers_clone = numbers.clone();
-        numbers_clone.sort();
-        let median = if num_elements % 2 == 0 {
-            // if the length of the array is even, return the two middle values
-            Option::Some((numbers_clone[num_elements / 2 - 1], Some(numbers_clone[num_elements / 2])))
-        } else {
-            // otherwise, return the middle value
-            Option::Some((numbers_clone[num_elements / 2], None))
-        };
-        dbg!(&numbers_clone[num_elements / 2 - 1..=num_elements / 2+1]);
-        let res = find_median_values(&numbers);
-        match(&median, &res) {
-            // match the median and the result of the quick select algorithm
-            (Some((median, Some(median2))), Some((res, Some(res2)))) => {
-                assert_eq!(median, res);
-                assert_eq!(median2, res2);
-            },
-            (Some((median, None)), Some((res, None))) => {
-                assert_eq!(median, res);
-            },
-            _ => {
-                panic!("median and res are not the same");
+        let num_tries = 100; // number of times to run the test
+        // let seed: u64 = 42;
+        for _ in 0..num_tries{
+            let seed = rand::thread_rng().gen_range(0..1<<32);
+            let mut rng = ChaChaRng::seed_from_u64(seed);
+            let num_elements = rng.gen_range(1..max_length);
+            // let num_elements = 10;
+            let numbers: Vec<usize> = (0..num_elements)
+                .map(|_| rng.gen_range(0..max_value))
+                .collect();
+            // find the median of a clone of the vector
+            let mut numbers_clone = numbers.clone();
+            numbers_clone.sort();
+            let median = if num_elements % 2 == 0 {
+                // if the length of the array is even, return the two middle values
+                Option::Some((numbers_clone[num_elements / 2 - 1], Some(numbers_clone[num_elements / 2])))
+            } else {
+                // otherwise, return the middle value
+                Option::Some((numbers_clone[num_elements / 2], None))
+            };
+            // dbg!(&numbers_clone[num_elements / 2 - 1..=num_elements / 2+1]);
+            let res = find_median_values(&numbers);
+            match(&median, &res) {
+                // match the median and the result of the quick select algorithm
+                (Some((median, Some(median2))), Some((res, Some(res2)))) => {
+                    assert_eq!(median, res);
+                    assert_eq!(median2, res2);
+                },
+                (Some((median, None)), Some((res, None))) => {
+                    assert_eq!(median, res);
+                },
+                _ => {
+                    panic!("median and res are not the same");
+                }
             }
         }
     }
@@ -268,36 +272,40 @@ mod tests {
     #[test]
     fn test_quick_select_phone_numbers() {
         let max_length: usize = 100;
-        let seed: u64 = 42;
+        // let seed: u64 = 42;
+        let seed = rand::thread_rng().gen_range(0..1<<32);
+        let num_tries = 100;
         // create a vector of random phone numbers with a max length, max value and seed.
-        let mut rng = ChaChaRng::seed_from_u64(seed);
-        let num_elements = rng.gen_range(0..max_length);
-        // let num_elements = 5;
-        let phone_numbers: Vec<String> = generate_phone_numbers(num_elements, 10, seed);
-        // find the median of a clone of the vector
-        let mut phone_numbers_clone = phone_numbers.clone();
-        phone_numbers_clone = phone_numbers_clone
-            .iter()
-            .map(|number| number.chars().rev().take(10).collect::<String>().chars().rev().collect::<String>())
-            .collect();
-        phone_numbers_clone.sort();
-        let median = if num_elements % 2 == 0 {
-            Some((phone_numbers_clone[num_elements / 2 - 1].clone(), Some(phone_numbers_clone[num_elements / 2].clone())))
-        } else {
-            Some((phone_numbers_clone[num_elements / 2].clone(), None))
-        };
-        dbg!(&phone_numbers_clone[num_elements / 2 - 1..=num_elements / 2+1]);
-        let res = find_median_values(&phone_numbers);
-        match(&median, &res) {
-            (Some((median, Some(median2))), Some((res, Some(res2)))) => {
-                assert_eq!(median, res);
-                assert_eq!(median2, res2);
-            },
-            (Some((median, None)), Some((res, None))) => {
-                assert_eq!(median, res);
-            },
-            _ => {
-                panic!("median and res are not the same");
+        for _ in 0..num_tries {
+            let mut rng = ChaChaRng::seed_from_u64(seed);
+            let num_elements = rng.gen_range(0..max_length);
+            // let num_elements = 5;
+            let phone_numbers: Vec<String> = generate_phone_numbers(num_elements, 10, seed);
+            // find the median of a clone of the vector
+            let mut phone_numbers_clone = phone_numbers.clone();
+            phone_numbers_clone = phone_numbers_clone
+                .iter()
+                .map(|number| number.chars().rev().take(10).collect::<String>().chars().rev().collect::<String>())
+                .collect();
+            phone_numbers_clone.sort();
+            let median = if num_elements % 2 == 0 {
+                Some((phone_numbers_clone[num_elements / 2 - 1].clone(), Some(phone_numbers_clone[num_elements / 2].clone())))
+            } else {
+                Some((phone_numbers_clone[num_elements / 2].clone(), None))
+            };
+            dbg!(&phone_numbers_clone[num_elements / 2 - 1..=num_elements / 2+1]);
+            let res = find_median_values(&phone_numbers);
+            match(&median, &res) {
+                (Some((median, Some(median2))), Some((res, Some(res2)))) => {
+                    assert_eq!(median, res);
+                    assert_eq!(median2, res2);
+                },
+                (Some((median, None)), Some((res, None))) => {
+                    assert_eq!(median, res);
+                },
+                _ => {
+                    panic!("median and res are not the same");
+                }
             }
         }
     }

@@ -1,8 +1,10 @@
+% !BIB program = biber
 \documentclass{report}
 
-\input{../preamble}
-\input{../macros}
-\input{../letterfonts}
+\input{./preamble}
+\input{./macros}
+\input{./letterfonts}
+\addbibresource{citations.bib}
 
 % \title{\Huge{INF1008}\\Data Structures \& Algorithms\\\Large{Part 1 Assignment}}
 % \author{\huge{Group 10}}
@@ -40,29 +42,100 @@
 \tableofcontents
 \listoffigures
 \pagebreak
-\chapter*{The Problem}
-US based phone numbers have been extracted from a bunch of documents and are available in a file, one phone number per line. Since people have many ways of writing phone numbers, the format of the numbers varies quite a bit. Numbers are always a minimum of 10 digits (3-digit area code and 7-digit number) but among the key variations, some numbers come with a ``+1'' prefix (country code for US is 1), other times there is only a ``1'' (as in ``1800'' numbers), the usual blocks are separated by either a space or a dash, the area code is sometimes within braces, sometimes all the digits are contiguous (no spaces), \emph{etc}. Here are some key formats:
-\begin{itemize}
-	\item +1-732-732-5555
-	\item 1-732-732-5555
-	\item (732) 732-5555
-	\item 7327325555
-	\item 732 7325555
-\end{itemize}
-For simplicity you can assume that the area code can be any 3 digit string that begins with a non-zero digit. You can also assume that the 7-digit number at the end may begin with a 0. So, for example the string ``100 0000000'' will be accepted as a phone number (for the purpose of this exercise!) Duplicates are allowed, in the same or different format.
+% \chapter*{The Problem}
+% US based phone numbers have been extracted from a bunch of documents and are available in a file, one phone number per line. Since people have many ways of writing phone numbers, the format of the numbers varies quite a bit. Numbers are always a minimum of 10 digits (3-digit area code and 7-digit number) but among the key variations, some numbers come with a ``+1'' prefix (country code for US is 1), other times there is only a ``1'' (as in ``1800'' numbers), the usual blocks are separated by either a space or a dash, the area code is sometimes within braces, sometimes all the digits are contiguous (no spaces), \emph{etc}. Here are some key formats:
+% \begin{itemize}
+% 	\item +1-732-732-5555
+% 	\item 1-732-732-5555
+% 	\item (732) 732-5555
+% 	\item 7327325555
+% 	\item 732 7325555
+% \end{itemize}
+% For simplicity you can assume that the area code can be any 3 digit string that begins with a non-zero digit. You can also assume that the 7-digit number at the end may begin with a 0. So, for example the string ``100 0000000'' will be accepted as a phone number (for the purpose of this exercise!) Duplicates are allowed, in the same or different format.
 \chapter{}
-\section{Problem Statement}
-Your first task is to find the median 10-digit phone number in a given input list (on the command-line). If there are an even number of phone-numbers, \(2n\), then the \(n\)th and \((n+1)\)th number from the sorted list must be output. For the purposes of this exercise, you should simply print out the median(s) as a 10-digit string, without any spaces. If there are 2 medians, they should simply be printed on the same line with comma separating them. Duplicates must be preserved. For example, in the list of 5 numbers above, the single median would be 7327325555 and so the output would be:\\7327325555\\If the input list were just the first 4 numbers, then there would be 2 medians, identical in this case, so the output would be:\\7327325555,7327325555\\
-\chapter{}
-\section{Problem Statement}
-2.	Your second task is to extend the same program by allowing it to take TWO additional command-line inputs: a 10-digit number (that starts with a non-zero digit) and a \(K\). If these additional inputs are provided, the program should print out the \(K\) unique numbers nearest (in terms of numerical difference) to the given 10-digit number. Duplicate numbers are considered ties and should also be printed. Thus, for example, if the program executable is called `findnumbers' and the list of numbers above are in a file called `phonescraped', then following is the command-line invocation for a number with \(k=1\): 
-|Findnumbers phonescraped 7327325550 1| For this, the output would be:\\
-7327325555\\
-7327325555\\
-7327325555\\
-7327325555\\
-7327325555\\
-Since all numbers are tied and the closest to the input number.\\
-Try to make the search as efficient as possible. As this will be part of the assessment.
+% \section{Problem Statement}
+% Your first task is to find the median 10-digit phone number in a given input list (on the command-line). If there are an even number of phone-numbers, \(2n\), then the \(n\)th and \((n+1)\)th number from the sorted list must be output. For the purposes of this exercise, you should simply print out the median(s) as a 10-digit string, without any spaces. If there are 2 medians, they should simply be printed on the same line with comma separating them. Duplicates must be preserved. For example, in the list of 5 numbers above, the single median would be 7327325555 and so the output would be:\\7327325555\\If the input list were just the first 4 numbers, then there would be 2 medians, identical in this case, so the output would be:\\7327325555,7327325555\\
+\section{User Guide}
+To compile the executable, the user must have an updated version of rustlang's cargo tool installed (if they would like to conduct tests on the algorithm as well as run it). The user then just needs to input into the command line: |cargo run <phone number> <phone number> … <phone number>|. Alternatively, they may run the following on the command line should the program already be compiled: |qn_1.exe <phone number> <phone number> … <phone number>|. The program will then output the median phone number from the given input phone numbers. Note that phone number arguments with whitespace in them must be delimited by quotation marks.
+\paragraph{Example} |cargo run 123-456-7890 "(323) 456-7890" “+1 223-456-7890” 1-322-345-7890 "322 555 0000"|
 
+\section{Structure/Design}
+The program takes in an input vector of strings, after which it will clean the input string into phone numbers of length 10. This process is \(\mathcal{O}(n)\), as it must iterate across the entire vector once. Next, the vector is passed into a function to find the median values. If the length of the array is an even number, the algorithm runs the quickselect algorithm twice, otherwise once.
+
+The quickselect algorithm is based on the quicksort algorithm, where it only recurses on the slice of the vector where the desired k-th value is. This leads to quickselect having an average case time complexity of \(\mathcal{O}(n)\), with a worst case of \(\mathcal{O}(n^2)\), compared to quicksort's average and worst case time complexity of \(\mathcal{O}(n \log{n})\) and \(\mathcal{O}(n^2)\) respectively. Due to this \(\mathcal{O}(n)\) average case, we opted to use a vector as the data structure over other data structures like linked lists or tree-based structures.
+
+\section{Limitations}
+Despite the \(\mathcal{O}(n)\) average case time complexity, it shares the same \(\mathcal{O}(n^2)\) worst case time complexity due to its similarities with quicksort, where a non-optimally chosen pivot leads to \(\mathcal{O}(n^2)\). This may be alleviated by using hybrid algorithms such as introselect, which uses both the quickselect and median of medians algorithm, depending on which algorithm is expected to perform better for the given input slice.
+
+Due to our implementation of quickselect's inability to select more than one k, the quickselect algorithm must be run twice if the input array's length is an even number, doubling the runtime of the algorithm.
+
+\section{Testing}
+Four main tests are conducted to verify the correctness of the algorithm and its performance. The program passes all tests.
+\begin{itemize}
+	\item Testing to find the median value for an unsorted array against the value of the median index of a sorted copy of the unsorted array. This array has a random length and randomly chosen integer values. This test is run 100 times.
+	\item Testing that quickselect finds the correct value in the worst case scenario (a sorted array)
+	\item Testing that quickselect finds the median value for an unsorted array of randomly generated 10 digit phone numbers. This test is run 100 times.
+	\item Comparing the efficiency of the algorithm against an implementation of quicksort. Like test 2, the array consists of randomly generated phone numbers, and the comparisons are conducted from an array length of 1 to 100,000. To aid in completing the test faster, the comparisons for each array length are split among all logical processors of the user's CPU. For slices of the arrays that are the same length, their comparisons are run on the same thread to ensure there is no variance between the conditions of the test for both algorithms. Each test is then run 5 times and a mean of the time taken for both algorithms to find the \(k\)-th smallest value is recorded to a file and is shown below:
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{task1.png}
+	\caption{Quick Sort vs Quick Select time efficiency}
+	\label{fig:task1_time_eff}
+\end{figure}
+
+\chapter{}
+% \section{Problem Statement}
+% Your second task is to extend the same program by allowing it to take TWO additional command-line inputs: a 10-digit number (that starts with a non-zero digit) and a \(K\). If these additional inputs are provided, the program should print out the \(K\) unique numbers nearest (in terms of numerical difference) to the given 10-digit number. Duplicate numbers are considered ties and should also be printed. Thus, for example, if the program executable is called `findnumbers' and the list of numbers above are in a file called `phonescraped', then following is the command-line invocation for a number with \(K=1\): 
+% |Findnumbers phonescraped 7327325550 1| For this, the output would be:\\
+% 7327325555\\
+% 7327325555\\
+% 7327325555\\
+% 7327325555\\
+% 7327325555\\
+% Since all numbers are tied and the closest to the input number.\\
+% Try to make the search as efficient as possible. As this will be part of the assessment.
+
+\section{User Guide}
+The program takes 3 positional arguments:
+\begin{enumerate}
+	\item A filename of a file which contains the list of phone numbers.
+	\item A target phone number that the user would like to find the nearest \(K\) numbers for. Note that if the phone number contains whitespace, it must be delimited by quotation marks.
+	\item A number K for which the program will find the nearest K phone numbers to argument 2. If \(K \le 0\), the program panics with the error message, ``\(k\) must be greater than 0''.
+\end{enumerate}
+\paragraph{Example}
+A user may run the program in one of the following manners:
+\begin{itemize}
+	\item |cargo run <filename> <target number> <K>|
+	\item |Question_2_rust.exe <filename> <target number> <K>|
+\end{itemize}
+
+\section{Structure/Design}
+The phone numbers are first stored in a vector, then are sanitized one by one to ensure only digits remain, then parsed as an integer. This step is \(\mathcal{O}(n)\), as it must iterate through the entire input list. The numbers are then stored in a hashmap as keys, where the values are the number of times the number has appeared in the input vector. This step is also \(\mathcal{O}(n)\), as it iterates through the vector which contains the phone numbers.
+
+The absolute difference between each number and the target number is then stored in a BTreeMap, with the values being the number themselves. The BTreeMap was chosen as it has two properties that benefit us. Firstly, due to it being a form of a B-Tree, the keys are sorted by value. Secondly, the B-Tree makes each node contain \(B-1\) to \(2B-1\) elements in a contiguous array for some choice of \(B\), which improves cache efficiency \autocite{rustlang_btreemap_2015}. Construction of a BTreeMap is \(\mathcal{O}(n \log n)\).
+
+We then iterate through \(K\) phone numbers of the BTreeMap which has the worst case of \(\mathcal{O}(K \log n)\), where there are \(K\) unique closest numbers to the target number. If \(K > n\), then the worst case is \(\mathcal{O}(n \log n)\). We then print each of the closest \(K\) phone numbers as many times as they appeared in the input vector by checking their values in the hashmap, which takes \(\mathcal{O}(1)\) time. Overall, the time complexity of the program is \(\mathcal{O}(n \log n)\).
+
+\section{Limitations}
+As the time complexity for the algorithm is \(\mathcal{O}(n \log n)\), it performs similarly to just running a simple quicksort on the input, then printing \(K\) unique phone numbers closest to the target number, which would be far less complex to implement compared to having a BTreeMap in the implementation.
+
+\section{Testing}
+The following tests are conducted, and the program passes all.
+\begin{enumerate}
+	\item Testing that the algorithm can select the closest k values from a predefined array.
+	\item Testing that the algorithm will return the same values for a randomly generated array of random length, with random 10-digit phone numbers as the elements.
+	\item Comparing the efficiency of the algorithm against an implementation of quicksort. The array consists of randomly generated phone numbers, and the comparisons are conducted from an array length of 1 to 10,000. To aid in completing the test faster, the comparisons for each array length are split amongst all logical processors of the user's CPU. For slices of the arrays that are the same length, their comparisons are run on the same thread to ensure there is no variance between the conditions of the test for both algorithms. Each test is then run 5 times and a mean of the time taken for both algorithms to find the \(k\)-th closest phone numbers is recorded to a file and is shown below:
+\end{enumerate}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{task2.png}
+	\caption{Quicksort implementation vs BTreeMap implementation time efficiency}
+	\label{fig:task2_time_eff}
+\end{figure}
+
+\renewcommand{\chaptername}{}
+\setcounter{biburlnumpenalty}{9000}
+\printbibliography[heading=bibnumbered]
 \end{document}

@@ -21,8 +21,8 @@
             },
             "args": [
                 "${workspaceFolder}/phonescraped",
-                "1",
-                "1"
+                "7327325553",
+                "2"
             ],
             "cwd": "${workspaceFolder}"
         },
@@ -36,6 +36,27 @@
                     "--no-run",
                     "--bin=Question_2_rust",
                     "--package=Question_2_rust"
+                ],
+                "filter": {
+                    "name": "Question_2_rust",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug comparison tests in executable 'Question_2_rust'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "compare_naive_and_our_implementation",
+                    // "--bin=Question_2_rust",
+                    // "--package=Question_2_rust",
+                    "--",
+                    "--nocapture"
                 ],
                 "filter": {
                     "name": "Question_2_rust",
