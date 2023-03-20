@@ -74,9 +74,9 @@ fn quick_select<T: PartialOrd + Clone>(arr: &mut [T], k: usize) -> Option<T> {
     let pivot_index = len / 2;
     let pivot_value = arr[pivot_index].clone();
 
-    let mut i = 0;
-    let mut j = 0;
-    let mut n = len - 1;
+    let mut i = 0; // left side of the array
+    let mut j = 0; // left side of the array (accounts for duplicates)
+    let mut n = len - 1; // right side of the array
     while j <= n {
         if arr[j] < pivot_value {
             arr.swap(i, j);
@@ -89,12 +89,14 @@ fn quick_select<T: PartialOrd + Clone>(arr: &mut [T], k: usize) -> Option<T> {
             j += 1;
         }
     }
-
     if i <= k && k <= n {
+        // Result is simply the k-th element
         Some(arr[k].clone())
     } else if k < i {
+        // Recurse on the left side of the array
         quick_select(&mut arr[..i], k)
     } else {
+        // Recurse on the right side of the array
         quick_select(&mut arr[n + 1..], k - n - 1)
     }
 }
@@ -184,12 +186,11 @@ mod tests {
         let max_length: usize = 100; // max possible length of the vector
         let max_value: usize = 100; // max possible value of the random numbers
         let num_tries = 100; // number of times to run the test
-        // let seed: u64 = 42;
         for _ in 0..num_tries{
+            // intialize the random number generator
             let seed = rand::thread_rng().gen_range(0..1<<32);
             let mut rng = ChaChaRng::seed_from_u64(seed);
             let num_elements = rng.gen_range(1..max_length);
-            // let num_elements = 10;
             let numbers: Vec<usize> = (0..num_elements)
                 .map(|_| rng.gen_range(0..max_value))
                 .collect();
@@ -203,7 +204,6 @@ mod tests {
                 // otherwise, return the middle value
                 Option::Some((numbers_clone[num_elements / 2], None))
             };
-            // dbg!(&numbers_clone[num_elements / 2 - 1..=num_elements / 2+1]);
             let res = find_median_values(&numbers);
             match(&median, &res) {
                 // match the median and the result of the quick select algorithm
@@ -267,7 +267,10 @@ mod tests {
             .collect();
         phone_numbers
     }
-
+    enum ComparisonType {
+        PhoneNumbers,
+        Integers
+    }
     /// This test is used to test quick select by comparing it to the sort function
     /// on a vector of random phone numbers.
     /// It creates a vector of random phone numbers, then sorts the vector and finds the median value,
@@ -275,17 +278,17 @@ mod tests {
     #[test]
     fn test_quick_select_phone_numbers() {
         let max_length: usize = 100;
-        // let seed: u64 = 42;
         let seed = rand::thread_rng().gen_range(0..1<<32);
         let num_tries = 100;
         // create a vector of random phone numbers with a max length, max value and seed.
         for _ in 0..num_tries {
+            // initialize the random number generator
             let mut rng = ChaChaRng::seed_from_u64(seed);
             let num_elements = rng.gen_range(0..max_length);
-            // let num_elements = 5;
             let phone_numbers: Vec<String> = generate_phone_numbers(num_elements, 10, seed);
             // find the median of a clone of the vector
             let mut phone_numbers_clone = phone_numbers.clone();
+            // clean the phone numbers
             phone_numbers_clone = phone_numbers_clone
                 .iter()
                 .map(|number| number.chars().rev().take(10).collect::<String>().chars().rev().collect::<String>())
@@ -296,8 +299,8 @@ mod tests {
             } else {
                 Some((phone_numbers_clone[num_elements / 2].clone(), None))
             };
-            dbg!(&phone_numbers_clone[num_elements / 2 - 1..=num_elements / 2+1]);
             let res = find_median_values(&phone_numbers);
+            // Check that the median and the result of the quick select algorithm are the same
             match(&median, &res) {
                 (Some((median, Some(median2))), Some((res, Some(res2)))) => {
                     assert_eq!(median, res);
@@ -338,7 +341,6 @@ mod tests {
     /// ```
     fn partition<T: PartialOrd>(arr: &mut [T]) -> usize {
         let len = arr.len();
-        // let pivot_index = len / 2;
         // select a random pivot index
         let mut rng = rand::thread_rng();
         let pivot_index = rng.gen_range(0..len);
@@ -352,11 +354,6 @@ mod tests {
         }
         arr.swap(store_index, len - 1);
         store_index
-    }
-
-    enum ComparisonType {
-        PhoneNumbers,
-        Integers
     }
 
     // This function is used to compare the performance of quick select and quick sort
@@ -385,27 +382,29 @@ mod tests {
             .progress_chars("##-");
         let results = match comparison {
             ComparisonType::PhoneNumbers => {
+                // Phone numbers case
                 let phone_numbers = generate_phone_numbers(max_length, 10, seed);
                 let res: Vec<(usize, Duration, Duration)> = (1..=max_length)
-                    .into_par_iter()
+                    .into_par_iter() // parallelize the loop
                     .progress_count(max_length as u64)
                     .with_style(style)
                     .map(|num_elements| {
-                        let phone_numbers_slice = &phone_numbers[..(max_length - num_elements)];
+                        let phone_numbers_slice = &phone_numbers[..(max_length - num_elements)]; // get a slice of the vector
                         let timings = compare_quickselect_and_quicksort(phone_numbers_slice);
                         ((max_length - num_elements + 1), timings.0, timings.1)
-                    }).collect();
+                    }).collect(); // collect the results
                 res.into_iter().rev().collect()
             },
             ComparisonType::Integers => {
+                // Integers case
                 let mut rng = ChaChaRng::seed_from_u64(seed);
                 let arr: Vec<i32> = (0..max_length).map(|_| rng.gen_range(0..1000000)).collect();
                 let res: Vec<(usize, Duration, Duration)> = (1..=max_length)
-                    .into_par_iter()
+                    .into_par_iter() // parallelize the loop
                     .progress_count(max_length as u64)
                     .with_style(style)
                     .map(|num_elements| {
-                        let arr_slice = &arr[..(max_length - num_elements)];
+                        let arr_slice = &arr[..(max_length - num_elements)]; // get a slice of the vector
                         let timings = compare_quickselect_and_quicksort(arr_slice);
                         ((max_length - num_elements + 1), timings.0, timings.1)
                     })
@@ -431,7 +430,7 @@ mod tests {
         let mut arr_clone = arr.to_vec();
         let mut sum_quicksort_time = Duration::new(0, 0);
         let mut sum_quickselect_time = Duration::new(0, 0);
-        for _ in 0..5 {
+        for _ in 0..5 { // run the test 5 times and take the average
             let start = Instant::now();
             quicksort(&mut arr_clone);
             let end = Instant::now();
@@ -464,7 +463,6 @@ mod tests {
             Err(err) => panic!("couldn't create file: {}", err),
         };
         
-        println!("{0: <10} | {1: <10} | {2: <10} | {3: <10}", "length", "quicksort", "quickselect", "ratio");
         let results = _compare_quickselect_and_quicksort(ComparisonType::PhoneNumbers, max_length, seed);
         results.iter().for_each(|(length, quicksort_time, quickselect_time)| {
             let ratio = quicksort_time.as_nanos() as f64 / quickselect_time.as_nanos() as f64;

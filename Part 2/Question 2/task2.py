@@ -22,17 +22,14 @@ def find_nearest_numbers(file_name, target_number, k):
 
     # calculate the absolute differences between each number in the hash table and the target number
     differences = {} #max size of 2
-    print(numbers)
     for number in numbers:
         difference = absolute_difference(number, target_number)
-        print(difference)
         if difference not in differences:
             differences[difference] = [number]
         else:
             differences[difference].append(number)
     # sort the unique differences in ascending order
     sorted_differences = sorted(differences.keys())
-    print(differences)
     # print the K unique numbers nearest to the target number
     count = 0
     for difference in sorted_differences: # iterate through the unique differences calculated
@@ -40,7 +37,6 @@ def find_nearest_numbers(file_name, target_number, k):
             for i in range(numbers[number]): # repeat the print method the amount of time the number appeared
                 print(number)
             count += 1
-            print(count)
         if count >= k:
             return
 
@@ -49,7 +45,7 @@ def find_nearest_numbers(file_name, target_number, k):
 if __name__ == '__main__':
     # check if the correct number of arguments is provided
     if len(sys.argv) < 3 or len(sys.argv) > 4:
-        print('Usage: python findnumbers.py input_file target_number [k]')
+        print('Usage: python task2.py input_file target_number [k]')
         sys.exit()
 
     # get the input file name, target number, and k (if provided)
