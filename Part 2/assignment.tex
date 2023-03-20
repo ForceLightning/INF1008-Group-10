@@ -4,6 +4,7 @@
 \input{./preamble}
 \input{./macros}
 \input{./letterfonts}
+\addbibresource{IEEEabrv.bib}
 \addbibresource{citations.bib}
 
 % \title{\Huge{INF1008}\\Data Structures \& Algorithms\\\Large{Part 1 Assignment}}
@@ -63,12 +64,12 @@ To compile the executable, the user must have an updated version of rustlang's c
 \paragraph{Example} |cargo run 123-456-7890 "(323) 456-7890" “+1 223-456-7890” 1-322-345-7890 "322 555 0000"|
 
 \section{Structure/Design}
-The program takes in an input vector of strings, after which it will clean the input string into phone numbers of length 10. This process is \(\mathcal{O}(n)\), as it must iterate across the entire vector once. Next, the vector is passed into a function to find the median values. If the length of the array is an even number, the algorithm runs the quickselect algorithm twice, otherwise once.
+The program takes in an input vector of strings, after which it will clean the input string into phone numbers of length 10, then parsed as an integer. If the input vector is empty, the program will terminate. The program will also ignore any phone numbers that have fewer than 10 digits or more than 11 digits to account for the US country code. This process is \(\mathcal{O}(n)\), as it must iterate across the entire vector once. Next, the vector is passed into a function to find the median values. If the length of the array is an even number, the algorithm runs the quickselect algorithm twice, otherwise once.
 
-The quickselect algorithm is based on the quicksort algorithm, where it only recurses on the slice of the vector where the desired \(k\)-th smallest value is after the vector is partitioned by a randomly selected pivot. In the case of this program, \(k\) was chosen to be \(\sfrac{n}{2}\)\footnote{In the case of an even numbered length input, \(k_1 = \sfrac{n}{2} - 1, k_2 = \sfrac{n}{2}\)}. This leads to quickselect having an average case time complexity of \(\mathcal{O}(n)\), with a worst case of \(\mathcal{O}(n^2)\), compared to quicksort's average and worst case time complexity of \(\mathcal{O}(n \log{n})\) and \(\mathcal{O}(n^2)\) respectively. Due to this \(\mathcal{O}(n)\) average case, we opted to use a vector as the data structure over other data structures like linked lists or tree-based structures, which at least have a \(\mathcal{O}(n \log{n})\) total time complexity.
+The quickselect algorithm is based on the quicksort algorithm, where it only recurses on the slice of the vector where the desired \(k\)-th smallest value is after the vector is partitioned by a pivot~\autocite{hoare_algorithm_1961}. In the case of this program, \(k\) was chosen to be \(\ceil{\sfrac{n}{2}}\)\footnote{In the case of an even numbered length input, \(k_1 = \sfrac{n}{2}, k_2 = \sfrac{n}{2} + 1\)}. This leads to quickselect having an average case time complexity of \(\mathcal{O}(n)\), with the worst case of \(\mathcal{O}(n^2)\), compared to quicksort's average and worst case time complexity of \(\mathcal{O}(n \log{n})\) and \(\mathcal{O}(n^2)\) respectively. Due to this \(\mathcal{O}(n)\) average case, we opted to use a vector as the data structure over other data structures like linked lists or tree-based structures, which at least have an \(\mathcal{O}(n \log{n})\) total time complexity.
 
 \section{Limitations}
-Despite the \(\mathcal{O}(n)\) average case time complexity, it shares the same \(\mathcal{O}(n^2)\) worst case time complexity due to its similarities with quicksort, where a non-optimally chosen pivot leads to \(\mathcal{O}(n^2)\). This may be alleviated by using hybrid algorithms such as introselect, which uses both the quickselect and median of medians algorithm, depending on which algorithm is expected to perform better for the given input slice.
+Despite the \(\mathcal{O}(n)\) average case time complexity, it shares the same \(\mathcal{O}(n^2)\) worst case time complexity due to its similarities with quicksort, where a non-optimally chosen pivot leads to \(\mathcal{O}(n^2)\). This may be alleviated by using hybrid algorithms such as introselect~\autocite{musser_introspective_1997}, which uses both the quickselect and median of medians algorithm, depending on which algorithm is expected to perform better for the given input slice.
 
 Due to our implementation of quickselect's inability to select more than one \(k\), the quickselect algorithm must be run twice if the input array's length is an even number, doubling the runtime of the algorithm.
 
@@ -77,7 +78,7 @@ Four main tests are conducted to verify the correctness of the algorithm and its
 \begin{itemize}
 	\item Testing to find the median value for an unsorted array against the value of the median index of a sorted copy of the unsorted array. This array has a random length and randomly chosen integer values. This test is run 100 times.
 	\item Testing that quickselect finds the correct value in the worst case scenario (a sorted array)
-	\item Testing that quickselect finds the median value for an unsorted array of randomly generated 10 digit phone numbers. This test is run 100 times.
+	\item Testing that quickselect finds the median value for an unsorted array of randomly generated 10-digit phone numbers. This test is run 100 times.
 	\item Comparing the efficiency of the algorithm against an implementation of quicksort. Like test 2, the array consists of randomly generated phone numbers, and the comparisons are conducted from an array length of 1 to 100,000. To aid in completing the test faster, the comparisons for each array length are split among all logical processors of the user's CPU\@. For slices of the arrays that are the same length, their comparisons are run on the same thread to ensure there is no variance between the conditions of the test for both algorithms. Each test is then run 5 times and a mean of the time taken for both algorithms to find the \(k\)-th smallest value is recorded to a file and is shown below:
 \end{itemize}
 
@@ -115,13 +116,13 @@ A user may run the program in one of the following manners:
 \end{itemize}
 
 \section{Structure/Design}
-The phone numbers are first stored in a vector, then are sanitized one by one to ensure only digits remain, then parsed as an integer. This step is \(\mathcal{O}(n)\), as it must iterate through the entire input list. The numbers are then stored in a hashmap as keys, where the values are the number of times the number has appeared in the input vector. This step is also \(\mathcal{O}(n)\), as it iterates through the vector which contains the phone numbers. We selected a hashmap as the data structure due to its \(\mathcal{O}(1)\) element insertion and retrieval time complexity.~\autoref{fig:construct_numbers} shows an example on how this hashmap is constructed, where the keys are the phone numbers and the values are the count of each number that appears in the input vector.
+The phone numbers are first stored in a vector, then are sanitized one by one to ensure only digits remain, then parsed as an integer. Any invalid phone numbers are ignored in this process. Additionally, the program will assert that \(k > 0\). This step is \(\mathcal{O}(n)\), as it must iterate through the entire input list. The numbers are then stored in a hashmap as keys, where the values are the number of times the number has appeared in the input vector. This step is also \(\mathcal{O}(n)\), as it iterates through the vector which contains the phone numbers. We selected a hashmap as the data structure due to its \(\mathcal{O}(1)\) element insertion and retrieval time complexity.~\autoref{fig:construct_numbers} shows an example on how this hashmap is constructed, where the keys are the phone numbers and the values are the count of each number that appears in the input vector.
 
 \begin{figure}
 	\centering
 	\resizebox{!}{0.4\textheight}{%
 	\begin{tikzpicture}[MyStyle/.style={draw, minimum width=5em, minimum height=3em, outer sep=0pt}, ampersand replacement=\&]
-		\matrix (numbers1) [matrix of nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth]{%
+		\matrix (numbers1) [matrix of nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth, below] at (0,0) {%
 			Key \& Value\\
 			10 \& 1\\
 			13 \& 5\\
@@ -132,7 +133,7 @@ The phone numbers are first stored in a vector, then are sanitized one by one to
 			$\vdots$ \& $\vdots$\\
 		};
 		\node [above=of numbers1] {numbers \{\}};
-		\matrix (numbers2) [matrix of nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth, right=of numbers1]{%
+		\matrix (numbers2) [matrix of nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth, below] at (5, 0) {%
 			Key \& Value\\
 			10 \& 1\\
 			13 \& 5\\
@@ -144,7 +145,7 @@ The phone numbers are first stored in a vector, then are sanitized one by one to
 			$\vdots$ \& $\vdots$\\
 		};
 		\node [above=of numbers2, align=center] {Adding a number that\\is not in the hashmap};
-		\matrix (numbers3) [matrix of nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth, right=of numbers2]{%
+		\matrix (numbers3) [matrix of nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth, below] at (10,0) {%
 			Key \& Value\\
 			10 \& 1\\
 			13 \& 5\\
@@ -156,6 +157,8 @@ The phone numbers are first stored in a vector, then are sanitized one by one to
 			$\vdots$ \& $\vdots$\\
 		};
 		\node [above=of numbers3, align=center] {Adding a number that\\is already in the hashmap};
+		\draw[-Stealth, very thick] (numbers1.east |- numbers2.west) -- (numbers2);
+		\draw[-Stealth, very thick] (numbers2) -- (numbers3);
 	\end{tikzpicture}}
 	\caption{Constructing the numbers hashmap (using 2-digit numbers)}
 	\label{fig:construct_numbers}
@@ -166,6 +169,7 @@ The absolute difference between each number and the target number is then stored
 \begin{figure}
 	\centering
 	\begin{subfigure}{0.4\textwidth}
+		\centering
 		\begin{tikzpicture}[MyStyle/.style={draw, minimum width=5em, minimum height=3em, outer sep=0pt, text height=2ex, text depth=0.5ex, inner xsep=0pt}, ampersand replacement=\&]
 			\matrix (numbers1) [matrix of nodes, nodes={MyStyle, anchor=center}, column sep=-\pgflinewidth, nodes in empty cells]{%
 				Key \& \& \\
@@ -213,7 +217,7 @@ The absolute difference between each number and the target number is then stored
 	\caption{BTreeMap}
 	\label{fig:btreemap}
 \end{figure}
-We then iterate up to \(K\)\footnote{\(K+1\) if there is a tie in the last 2 numbers} phone numbers of the BTreeMap which has the worst case of \(\mathcal{O}(K \log n)\), where there are \(K\) unique closest numbers to the target number. If \(K > n\), then the time complexity is \(\mathcal{O}(n \log n)\). Subsequently, the program will print each of the closest \(K\) phone numbers as many times as they appeared in the input vector by checking their values in the hashmap, which takes \(\mathcal{O}(1)\) time. Overall, the time complexity of the program is \(\mathcal{O}(n \log n)\).
+We then iterate up to \(K\)\footnote{\(K+1\) if there is a tie in the last 2 numbers} phone numbers of the BTreeMap. As search through a BTreeMap is \(\mathcal{O}(\log{n})\), this process has the worst case of \(\mathcal{O}(K \log n)\), where there are \(K\) unique closest numbers to the target number. If \(K > n\), then the time complexity is \(\mathcal{O}(n \log n)\). Subsequently, the program will print each of the closest \(K\) phone numbers as many times as they appeared in the input vector by checking their values in the hashmap, which would cumulatively have \(\mathcal{O}(K)\) time complexity. Overall, the time complexity of the program is \(\mathcal{O}(n \log n)\).
 
 \section{Limitations}
 As the time complexity for the algorithm is \(\mathcal{O}(n \log n)\), it performs similarly to just running a simple quicksort on the input, then printing \(K\) unique phone numbers closest to the target number, which would be far less complex to implement compared to having a BTreeMap in the implementation.
@@ -221,9 +225,10 @@ As the time complexity for the algorithm is \(\mathcal{O}(n \log n)\), it perfor
 \section{Testing}
 The following tests are conducted, and the program passes all.
 \begin{enumerate}
+	\item Testing that the sanitization of phone numbers work correctly on a wrongly randomly generated phone number and a valid generated phone number. This process is repeated 100 times.
 	\item Testing that the algorithm can select the closest \(K\) values from a predefined array.
 	\item Testing that the algorithm will return the same values as a naive solution of this problem for a randomly generated array of random length, with random 10-digit phone numbers as the elements.
-	\item Comparing the efficiency of the algorithm against solution that uses quicksort. The array consists of randomly generated phone numbers, and the comparisons are conducted from an array length of 1 to 10,000. To aid in completing the test faster, the comparisons for each array length are split amongst all logical processors of the user's CPU\@. For slices of the arrays that are the same length, their comparisons are run on the same thread to ensure there is no variance between the conditions of the test for both algorithms. Each test is then run 5 times and a mean of the time taken for both algorithms to find the \(K\)-th closest phone numbers is recorded to a file and is shown below:
+	\item Comparing the efficiency of the algorithm against solution that uses quicksort. The array consists of randomly generated phone numbers, and the comparisons are conducted from an array length of 1 to 10,000. To aid in completing the test faster, the comparisons for each array length are split among all logical processors of the user's CPU\@. For slices of the arrays that are the same length, their comparisons are run on the same thread to ensure there is no variance between the conditions of the test for both algorithms. Each test is then run 5 times and a mean of the time taken for both algorithms to find the \(K\)-th closest phone numbers is recorded to a file and is shown below:
 \end{enumerate}
 \begin{figure}[H]
 	\centering

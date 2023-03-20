@@ -11,7 +11,8 @@ use std::env;
 /// ```
 fn main() {
     let args: Vec<String>  = env::args().collect();
-    let phone_numbers: Vec<String> = args[1..]
+    assert!(args.len() > 1, "Please provide at least one phone number as a command line argument");
+    let phone_numbers: Vec<i64> = args[1..]
         .iter()
         .map(|number| {
             let cleaned: String = number
@@ -20,18 +21,20 @@ fn main() {
                 .collect();
             cleaned
         })
-        .filter(|cleaned| cleaned.len() >= 10) // filter out numbers with less than 10 digits
-        .map(|cleaned| cleaned.chars().rev().take(10).collect::<String>().chars().rev().collect()) // take last 10 digits
+        .filter(|cleaned| cleaned.len() >= 10 && cleaned.len() <= 11) // filter out numbers with less than 10 digits
+        .map(|cleaned| cleaned.chars().rev().take(10).collect::<String>().chars().rev().collect::<String>()) // take last 10 digits
+        .map(|cleaned| cleaned.parse::<i64>().unwrap()) // parse to i64
+        .filter(|number| number >= &1000000000) // filter out numbers with less than 10 digits
         .collect();
     // use quick select to find the median phone number
     // quick select has an average time complexity of O(n), but worst case is O(n^2)
     let res = find_median_values(&phone_numbers);
     match res {
         Some((median, Some(median2))) => {
-            println!("{},{}", median, median2);
+            println!("{:0<10},{:0<10}", median, median2);
         },
         Some((median, None)) => {
-            println!("{}", median);
+            println!("{:0<10}", median);
         },
         _ => {
             println!("No median");

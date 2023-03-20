@@ -1,11 +1,26 @@
 use std::{env, fs};
 use std::collections::{HashMap, BTreeMap};
 
+/// This function is the entry point of the program.
+/// It takes in a file name, a target number, and a k value.
+/// It will then read the file and find the k nearest numbers to the target number.
+/// In the case of a tie between the last 2 numbers, it will print both numbers.
+/// # Arguments
+/// * `filename` - The name of the file to read
+/// * `target_number` - The target number to find the k nearest numbers to
+/// * `k` - The number of nearest numbers to return
+/// # Example
+/// ```bash
+/// cargo run --release -- phonescraped 1234567890 3
+/// > 1234567890
+/// > 1234567891
+/// > 1234567889
+/// ```
 fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
-    let target_number = &args[2].parse::<i64>().unwrap();
-    let k = &args[3].parse::<u32>().unwrap();
+    let target_number = phone_number_sanitizer(&args[2]).unwrap();
+    let k = &args[3].parse::<i64>().unwrap();
 
     if *k <= 0 {
         panic!("k must be greater than 0");
@@ -21,11 +36,49 @@ fn main() {
                 .collect();
             cleaned
         })
-        .filter(|cleaned| cleaned.len() >= 10)
+        .filter(|cleaned| cleaned.len() >= 10 && cleaned.len() <= 11) // filter out numbers that are too short or too long length wise
         .map(|cleaned| cleaned.chars().rev().take(10).collect::<String>().chars().rev().collect::<String>().parse().unwrap())
+        .filter(|number| number >= &1000000000) // filter out numbers that are less than 10 digits long
         .collect();
-    let result = kth_nearest(*k, *target_number, phone_numbers);
+    let result = kth_nearest(*k, target_number, phone_numbers);
     result.iter().for_each(|number| println!("{}", number));
+}
+
+
+/// Cleans a phone number string and returns a 64 bit integer
+/// # Arguments
+/// * `phone_number` - The phone number to clean
+/// # Errors
+/// This function will return an error if the phone number is less than 10 digits long
+/// or if the phone number contains invalid characters
+/// # Example
+/// ```rust
+/// let result = phone_number_sanitizer(&String::from("1234567890"));
+/// assert_eq!(result, Ok(1234567890));
+/// ```
+fn phone_number_sanitizer(phone_number: &String) -> Result<i64, &'static str> {
+    let cleaned = phone_number
+        .chars()
+        .filter(|c| c.is_digit(10)) // filter out non-digits
+        .collect::<String>()
+        .chars()
+        .rev() // reverse the string and take the last 10 characters
+        .take(10)
+        .collect::<String>()
+        .chars()
+        .rev() // reverse it back again
+        .collect::<String>() // collect it back into a string
+        .parse::<i64>(); // parse it into an integer
+    match cleaned {
+        Ok(number) => {
+            if number < 1000000000 {
+                Err("Phone number must be at least 10 digits long")
+            } else {
+                Ok(number)
+            }
+        },
+        Err(_) => Err("Phone number has invalid characters")
+    }
 }
 
 /// Returns the k nearest numbers to the target number
@@ -35,12 +88,12 @@ fn main() {
 /// * `target` - The target number
 /// * `numbers` - The list of numbers to search
 /// # Example
-/// ```
+/// ```rust
 /// let numbers = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 /// let result = kth_nearest(3, 5, numbers);
 /// assert_eq!(result, vec![4, 5, 6]);
 /// ```
-fn kth_nearest(k: u32, target: i64, numbers: Vec<i64>) -> Vec<i64> {
+fn kth_nearest(k: i64, target: i64, numbers: Vec<i64>) -> Vec<i64> {
     let mut numbers_counter = HashMap::new();
     numbers.iter().for_each(|number| {
         let count = numbers_counter.entry(number).or_insert(0);
@@ -74,6 +127,97 @@ mod tests {
     use rayon::prelude::*;
     use rayon::iter::ParallelIterator;
     use indicatif::{ParallelProgressIterator, ProgressStyle, ProgressIterator};
+
+    /// This test will generate 100 random phone numbers and
+    /// ensure that they are all sanitized correctly
+    /// # Example
+    /// ```bash
+    /// cargo test --release -- test_sanitizer_valid_numbers
+    /// ```
+    #[test]
+    fn test_sanitizer_valid_numbers() {
+        for _ in 0..100 {
+            let (phone_number, _) = valid_phone_number_generator();
+            let result = phone_number_sanitizer(&phone_number.to_string());
+            assert_eq!(result, Ok(phone_number));
+        }
+    }
+
+    /// This test will generate 100 incorrect random phone numbers and
+    /// ensure that they are all not sanitized
+    /// # Example
+    /// ```bash
+    /// cargo test --release -- test_sanitizer_invalid_numbers
+    /// ```
+    #[test]
+    fn test_sanitizer_invalid_numbers() {
+        for _ in 0..100 {
+            let phone_number = invalid_phone_number_generator();
+            let result = phone_number_sanitizer(&phone_number);
+            match result {
+                Ok(_) => panic!("Invalid phone number was sanitized"),
+                Err(_) => {}
+            }
+        }
+    }
+
+    /// This function generates a random valid phone number
+    /// as a tuple of (i64, String) where the i64 is the
+    /// sanitized phone number and the String is the original
+    /// phone number
+    /// # Example
+    /// ```rust
+    /// let (phone_number, original) = valid_phone_number_generator();
+    /// assert!(phone_number = phone_number_sanitizer(&original).unwrap());
+    /// ```
+    fn valid_phone_number_generator() -> (i64, String) {
+        let mut rng = ChaChaRng::seed_from_u64(0);
+        let first_part = rng.gen_range(100..1000);
+        let second_part = rng.gen_range(0..1000);
+        let third_part = rng.gen_range(0..10000);
+        let prefix = match rng.gen_bool(0.5) {
+            true => "+1".to_owned(),
+            false => "".to_owned()
+        };
+        // include dashses or spaces or none:
+        let separator = match rng.gen_range(0..3) {
+            0 => "-".to_owned(),
+            1 => " ".to_owned(),
+            _ => "".to_owned()
+        };
+        let phone_number = format!("{}{:0>3}{}{:0>3}{}{:0>4}", prefix, first_part, separator, second_part, separator, third_part);
+        let phone_number_int = format!("{}{:0>3}{:0>3}{:0>4}", prefix, first_part, second_part, third_part).parse::<i64>().unwrap();
+        (phone_number_int, phone_number)
+    }
+
+    /// This function generates a random invalid phone number
+    /// as a String
+    /// # Example
+    /// ```rust
+    /// let phone_number = invalid_phone_number_generator();
+    /// assert!(phone_number_sanitizer(&phone_number).is_err());
+    /// ```
+    fn invalid_phone_number_generator() -> String {
+        let mut rng = ChaChaRng::seed_from_u64(0);
+        let first_part = rng.gen_range(0..100);
+        let second_part = rng.gen_range(0..1000);
+        let third_part = rng.gen_range(0..10000);
+        let prefix = match rng.gen_bool(0.5) {
+            true => "+1".to_owned(),
+            false => "".to_owned()
+        };
+        let mut number = format!("{}{:0>3}{:0>3}{:0>4}", prefix, first_part, second_part, third_part);
+        // replace a random character with a non-digit
+        match rng.gen_bool(0.5) {
+            true => {
+                rng.gen_range(0..number.len());
+                let index = rng.gen_range(0..number.len());
+                number.replace_range(index..index+1, "a");
+            },
+            false => {}
+        }
+        number
+    }
 
     #[test]
     fn test_kth_nearest_pre_defined() {
@@ -216,7 +360,7 @@ mod tests {
             let naive_duration = naive_end.duration_since(naive_start);
             sum_naive_duration += naive_duration;
             let btreemap_start = Instant::now();
-            let mut btreemap_result = kth_nearest(k as u32, target, numbers_clone_btreemap);
+            let mut btreemap_result = kth_nearest(k as i64, target, numbers_clone_btreemap);
             let btreemap_end = Instant::now();
             let btreemap_duration = btreemap_end.duration_since(btreemap_start);
             sum_btreemap_duration += btreemap_duration;
