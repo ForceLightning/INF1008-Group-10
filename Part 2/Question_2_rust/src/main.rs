@@ -94,26 +94,35 @@ fn phone_number_sanitizer(phone_number: &String) -> Result<i64, &'static str> {
 /// assert_eq!(result, vec![4, 5, 6]);
 /// ```
 fn kth_nearest(k: i64, target: i64, numbers: Vec<i64>) -> Vec<i64> {
+    // count the number of times each number appears in the list
     let mut numbers_counter = HashMap::new();
     numbers.iter().for_each(|number| {
         let count = numbers_counter.entry(number).or_insert(0);
         *count += 1;
     });
+    // calculate the differences between each number and the target number,
+    // and store the numbers that have the same difference in a BTreeMap
     let mut differences : BTreeMap<i64, Vec<i64>> = BTreeMap::new();
     for (number, _) in numbers_counter.iter() {
         let abs_distance = (*number - target).abs();
         let difference_count = differences.entry(abs_distance).or_insert(Vec::new());
         difference_count.push(*number.clone());
     }
-    // iterate k keys in the BTreeMap and return that to a result
-    let result: Vec<i64> = differences.keys().take(k as usize).flat_map(|difference| {
-        let numbers = differences.get(difference).unwrap();
-        let internal_result: Vec<i64> = numbers.iter().flat_map(|number| {
+    // take only k unique numbers from the BTreeMap
+    let mut result: Vec<i64> = Vec::new();
+    let mut count = 0;
+    for (_, numbers) in differences.iter().take(k as usize) {
+        let mut numbers_to_add: Vec<i64> = Vec::new();
+        for number in numbers {
+            count += 1;
             let num_times = numbers_counter.get(number).unwrap();
-            vec![number.clone(); *num_times as usize]
-        }).collect();
-        internal_result
-    }).collect();
+            numbers_to_add.append(&mut vec![*number; *num_times as usize]);
+        }
+        result.append(&mut numbers_to_add);
+        if count >= k as usize {
+            break;
+        }
+    }
     result
 }
 
@@ -222,8 +231,8 @@ mod tests {
     #[test]
     fn test_kth_nearest_pre_defined() {
         let numbers = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        let result = kth_nearest(3, 5, numbers);
-        assert_eq!(result, vec![4, 5, 6]);
+        let result = kth_nearest(4, 5, numbers);
+        assert_eq!(result, vec![3, 4, 5, 6, 7]);
     }
 
     fn naive_sorting_find_kth_nearest(k: u64, target: i64, numbers: Vec<i64>) -> Vec<i64> {
@@ -248,12 +257,12 @@ mod tests {
                 result.push(actual_number);
             }
             let abs_distance = difference.abs();
+            count += 1;
             if abs_distance > last_abs_distance {
-                count += 1;
                 last_abs_distance = abs_distance;
-            }
-            if count >= k {
-                break;
+                if count >= k {
+                    break;
+                }
             }
         }
         return result;
@@ -305,7 +314,7 @@ mod tests {
         (0..1000).progress_count(1000).for_each(|_| {
             let max_length = 10000;
             let min_number = 1000000000;
-            let max_number = 9999999999;
+            let max_number = 1999999999;
             let seed = rand::thread_rng().gen_range(0..1<<32);
             let mut rng = ChaChaRng::seed_from_u64(seed);
             let numbers: Vec<i64> = (0..max_length).map(|_| rng.gen_range(0..max_number)).collect();
@@ -375,7 +384,7 @@ mod tests {
 
     #[test]
     fn compare_naive_and_our_implementation() {
-        let max_length = 10000;
+        let max_length = 50000;
         let seed = 42;
         let mut file = match std::fs::File::create("results.csv") {
             Ok(file) => file,

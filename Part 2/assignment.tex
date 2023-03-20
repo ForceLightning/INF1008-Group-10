@@ -219,7 +219,7 @@ The absolute difference between each number and the target number is then stored
 \end{figure}
 We then iterate up to \(K\)\footnote{\(K+1\) if there is a tie in the last 2 numbers} phone numbers of the BTreeMap. As search through a BTreeMap is \(\mathcal{O}(\log{n})\), this process has the worst case of \(\mathcal{O}(K \log n)\), where there are \(K\) unique closest numbers to the target number. If \(K > n\), then the time complexity is \(\mathcal{O}(n \log n)\). Subsequently, the program will print each of the closest \(K\) phone numbers as many times as they appeared in the input vector by checking their values in the hashmap, which would cumulatively have \(\mathcal{O}(K)\) time complexity. Overall, the time complexity of the program is \(\mathcal{O}(n \log n)\).
 
-\section{Limitations}
+\section{Limitations}\label{sec:limitations}
 As the time complexity for the algorithm is \(\mathcal{O}(n \log n)\), it performs similarly to just running a simple quicksort on the input, then printing \(K\) unique phone numbers closest to the target number, which would be far less complex to implement compared to having a BTreeMap in the implementation.
 
 \section{Testing}
@@ -227,8 +227,8 @@ The following tests are conducted, and the program passes all.
 \begin{enumerate}
 	\item Testing that the sanitization of phone numbers work correctly on a wrongly randomly generated phone number and a valid generated phone number. This process is repeated 100 times.
 	\item Testing that the algorithm can select the closest \(K\) values from a predefined array.
-	\item Testing that the algorithm will return the same values as a naive solution of this problem for a randomly generated array of random length, with random 10-digit phone numbers as the elements.
-	\item Comparing the efficiency of the algorithm against solution that uses quicksort. The array consists of randomly generated phone numbers, and the comparisons are conducted from an array length of 1 to 10,000. To aid in completing the test faster, the comparisons for each array length are split among all logical processors of the user's CPU\@. For slices of the arrays that are the same length, their comparisons are run on the same thread to ensure there is no variance between the conditions of the test for both algorithms. Each test is then run 5 times and a mean of the time taken for both algorithms to find the \(K\)-th closest phone numbers is recorded to a file and is shown below:
+	\item Testing that the algorithm will return the same values as a naive solution of this problem for a randomly generated array of random length, with random 10-digit phone numbers as the elements. This test is repeated 1,000 times.
+	\item Comparing the efficiency of the algorithm against solution that uses quicksort. The array consists of randomly generated phone numbers, and the comparisons are conducted from an array length of 1 to 50,000. To aid in completing the test faster, the comparisons for each array length are split among all logical processors of the user's CPU\@. For slices of the arrays that are the same length, their comparisons are run on the same thread to ensure there is no variance between the conditions of the test for both algorithms. Each test is then run 5 times and a mean of the time taken for both algorithms to find the \(K\)-th closest phone numbers is recorded to a file and is shown in~\autoref{fig:task2_time_eff} below. Note that our implementation is slightly worse than the quicksort implementation mentioned in~\autoref{sec:limitations}.
 \end{enumerate}
 \begin{figure}[H]
 	\centering
